@@ -1,621 +1,472 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Court Masters — Card Strategy Basketball Game</title>
-  <meta name="description" content="Court Masters — Where Hearthstone meets the hardwood. Build your deck, draft your roster, and dominate the court in 4-quarter battles." />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['Bebas Neue', 'cursive'],
-            body: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            orange: {
-              950: '#3a1200',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .font-display { font-family: 'Bebas Neue', cursive; }
-
-    .hero-bg {
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, #2a1200 0%, #0d0d0d 55%, #0a0f1e 100%);
-    }
-    .grid-lines {
-      background-image:
-        linear-gradient(rgba(255, 107, 0, 0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 107, 0, 0.07) 1px, transparent 1px);
-      background-size: 64px 64px;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) rotate(var(--rot, 0deg)); }
-      50%       { transform: translateY(-12px) rotate(var(--rot, 0deg)); }
-    }
-    .float { animation: float 3.5s ease-in-out infinite; }
-    .float-delay-1 { animation-delay: 0.6s; }
-    .float-delay-2 { animation-delay: 1.2s; }
-
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 18px 2px rgba(255,107,0,.45); }
-      50%       { box-shadow: 0 0 40px 8px rgba(255,107,0,.75), 0 0 80px 16px rgba(255,107,0,.2); }
-    }
-    .glow-btn { animation: pulse-glow 2.2s ease-in-out infinite; }
-
-    .card-hover {
-      transition: transform .3s ease, box-shadow .3s ease;
-    }
-    .card-hover:hover {
-      transform: translateY(-10px) scale(1.03);
-      box-shadow: 0 28px 56px rgba(0,0,0,.7);
-    }
-
-    @keyframes fade-up {
-      from { opacity: 0; transform: translateY(28px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .fade-up { animation: fade-up .7s ease both; }
-    .fade-up-d1 { animation-delay: .15s; }
-    .fade-up-d2 { animation-delay: .3s; }
-    .fade-up-d3 { animation-delay: .45s; }
-    .fade-up-d4 { animation-delay: .6s; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Court Masters</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+body{font-family:'Inter',sans-serif;}
+.font-display{font-family:'Bebas Neue',cursive;}
+.hero-bg{background:radial-gradient(ellipse 80% 60% at 50% 0%,#2a1200 0%,#0d0d0d 55%,#0a0f1e 100%);}
+.grid-lines{background-image:linear-gradient(rgba(255,107,0,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,0,.07) 1px,transparent 1px);background-size:64px 64px;}
+@keyframes float{0%,100%{transform:translateY(0) rotate(var(--rot,0deg))}50%{transform:translateY(-10px) rotate(var(--rot,0deg))}}
+.float{animation:float 3.5s ease-in-out infinite;}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 18px 2px rgba(255,107,0,.45)}50%{box-shadow:0 0 40px 8px rgba(255,107,0,.75)}}
+.glow-btn{animation:pulse-glow 2.2s ease-in-out infinite;}
+.scrollbar-hide::-webkit-scrollbar{display:none;}
+.scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none;}
+</style>
 </head>
 <body class="bg-[#0d0d0d] text-white overflow-x-hidden">
 
-<!-- ═══════════════════════ NAV ═══════════════════════ -->
-<nav class="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 py-3 bg-black/75 backdrop-blur-lg border-b border-orange-950/60">
-  <a href="#" class="flex items-center gap-3">
-    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-orange-500 to-orange-800 flex items-center justify-center font-display text-[18px] text-white leading-none">CM</div>
-    <span class="font-display text-[22px] tracking-[.12em] text-orange-400">COURT MASTERS</span>
+<!-- ═══ NAV ═══ -->
+<nav class="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-5 py-3 bg-black/80 backdrop-blur-lg border-b border-orange-950/50">
+  <a href="#" onclick="navHome();return false;" class="flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-800 flex items-center justify-center font-display text-[16px] text-white">CM</div>
+    <span class="font-display text-[20px] tracking-[.1em] text-orange-400">COURT MASTERS</span>
   </a>
-  <div class="hidden md:flex items-center gap-7 text-[13px] font-semibold text-gray-400">
-    <a href="#features"   class="hover:text-orange-400 transition-colors">Features</a>
-    <a href="#how-to-play" class="hover:text-orange-400 transition-colors">How to Play</a>
-    <a href="#cards"      class="hover:text-orange-400 transition-colors">Cards</a>
-    <a href="#community"  class="hover:text-orange-400 transition-colors">Community</a>
+  <div class="flex items-center gap-3">
+    <span id="nav-user" class="hidden text-gray-400 text-sm font-semibold"></span>
+    <button id="nav-btn" class="bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-400 hover:to-orange-600 text-white font-bold px-4 py-1.5 rounded-full text-[13px] uppercase tracking-widest transition-all">Play Free</button>
   </div>
-  <a href="#cta" class="bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-400 hover:to-orange-600 text-white font-bold px-5 py-2 rounded-full text-[13px] uppercase tracking-widest transition-all shadow-lg shadow-orange-950/60">
-    Play Free
-  </a>
 </nav>
 
-
-<!-- ═══════════════════════ HERO ═══════════════════════ -->
-<section class="hero-bg grid-lines min-h-screen flex flex-col items-center justify-center relative overflow-hidden pt-20 pb-10">
-
-  <!-- Ambient glows -->
-  <div class="absolute inset-0 pointer-events-none overflow-hidden">
-    <div class="absolute top-1/4 left-1/3 w-72 h-72 bg-orange-600/10 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-1/3 right-1/4 w-96 h-96 bg-orange-800/8 rounded-full blur-3xl"></div>
-    <!-- Court arc -->
-    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] border-t-2 border-orange-500/15 rounded-t-full"></div>
-    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] border-t border-orange-500/8 rounded-t-full"></div>
+<!-- ═══ LANDING ═══ -->
+<div id="view-landing">
+  <section class="hero-bg grid-lines min-h-screen flex flex-col items-center justify-center relative overflow-hidden pt-20 pb-10">
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-1/4 left-1/3 w-72 h-72 bg-orange-600/10 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] border-t-2 border-orange-500/15 rounded-t-full"></div>
+    </div>
+    <div class="relative z-10 mb-4 flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 rounded-full px-4 py-1 text-orange-400 text-[13px] font-semibold">
+      <span class="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></span>Season 1 — Live Now
+    </div>
+    <h1 class="relative z-10 font-display text-center leading-none tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-white via-orange-100 to-orange-600 text-[72px] md:text-[120px] mb-4">COURT<br>MASTERS</h1>
+    <p class="relative z-10 text-center text-lg text-gray-300 mb-2 max-w-xl px-4">Where <span class="text-orange-400 font-semibold">Basketball Strategy</span> meets <span class="text-orange-400 font-semibold">Card Game Mastery</span></p>
+    <p class="relative z-10 text-center text-gray-500 text-sm mb-8 max-w-md px-4">Draft your roster, build your deck, and outplay opponents quarter by quarter.</p>
+    <div class="relative z-10 flex gap-4">
+      <button onclick="openAuth('register')" class="glow-btn bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-400 hover:to-orange-600 text-white font-bold px-8 py-3.5 rounded-full text-[16px] uppercase tracking-widest transition-all hover:scale-105">▶ Play Free</button>
+      <button onclick="openAuth('login')" class="border border-orange-500/40 hover:border-orange-400 text-orange-300 font-bold px-8 py-3.5 rounded-full text-[16px] uppercase tracking-widest transition-all hover:bg-orange-500/10">Sign In</button>
+    </div>
+    <div class="relative z-10 flex items-end justify-center gap-4 px-4 mt-10">
+      <div class="float w-[120px] rounded-2xl overflow-hidden border border-blue-800/50 shadow-2xl" style="--rot:-7deg;transform:rotate(-7deg)">
+        <div class="bg-gradient-to-b from-blue-950 to-[#0d0d0d] p-2.5"><div class="text-[10px] font-bold text-blue-400 uppercase mb-1">SG · Rare</div><div class="w-full h-[80px] bg-gradient-to-br from-blue-800 to-blue-950 rounded-lg flex items-center justify-center text-[40px] mb-2">🎯</div><div class="font-display text-[16px] text-white">Clutch Clara</div><div class="flex justify-between text-[10px] font-bold border-t border-blue-900/50 pt-1.5"><span class="text-blue-400">⚡4</span><span class="text-orange-400">⚔7</span><span class="text-green-400">❤6</span></div></div>
+      </div>
+      <div class="float w-[144px] rounded-2xl overflow-hidden border-2 border-yellow-500/70 shadow-2xl">
+        <div class="bg-gradient-to-b from-amber-950 to-[#0d0d0d] p-3"><div class="text-[10px] font-bold text-yellow-400 uppercase mb-1">⭐ Legend · C</div><div class="w-full h-[96px] bg-gradient-to-br from-yellow-700 to-orange-900 rounded-lg flex items-center justify-center text-[48px] mb-2">👑</div><div class="font-display text-[20px] text-yellow-300">The Commissioner</div><div class="flex justify-between text-[10px] font-bold border-t border-yellow-900/50 pt-1.5"><span class="text-blue-400">⚡2</span><span class="text-orange-400">⚔9</span><span class="text-green-400">❤14</span></div></div>
+      </div>
+      <div class="float w-[120px] rounded-2xl overflow-hidden border border-orange-800/50 shadow-2xl" style="--rot:7deg;transform:rotate(7deg)">
+        <div class="bg-gradient-to-b from-orange-950 to-[#0d0d0d] p-2.5"><div class="text-[10px] font-bold text-orange-400 uppercase mb-1">PG · Rare</div><div class="w-full h-[80px] bg-gradient-to-br from-orange-800 to-orange-950 rounded-lg flex items-center justify-center text-[40px] mb-2">⚡</div><div class="font-display text-[16px] text-white">Lightning Leo</div><div class="flex justify-between text-[10px] font-bold border-t border-orange-900/50 pt-1.5"><span class="text-blue-400">⚡5</span><span class="text-orange-400">⚔5</span><span class="text-green-400">❤8</span></div></div>
+      </div>
+    </div>
+  </section>
+  <div class="bg-orange-950/25 border-y border-orange-950/50 py-6">
+    <div class="max-w-4xl mx-auto px-6 grid grid-cols-4 gap-4 text-center">
+      <div><div class="font-display text-[36px] text-orange-400">500+</div><div class="text-gray-500 text-xs">Unique Cards</div></div>
+      <div><div class="font-display text-[36px] text-orange-400">2M+</div><div class="text-gray-500 text-xs">Players</div></div>
+      <div><div class="font-display text-[36px] text-orange-400">12</div><div class="text-gray-500 text-xs">Team Franchises</div></div>
+      <div><div class="font-display text-[36px] text-orange-400">4</div><div class="text-gray-500 text-xs">Quarters Per Match</div></div>
+    </div>
   </div>
+  <section class="py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12"><p class="text-orange-500 font-bold text-[12px] uppercase tracking-widest mb-2">Game Mechanics</p><h2 class="font-display text-[52px] text-white">PLAY LIKE A CHAMPION</h2></div>
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="bg-gray-900 border border-gray-800 hover:border-orange-900/50 rounded-2xl p-5 transition-all"><div class="text-[36px] mb-3">🏀</div><h3 class="font-display text-[22px] text-white mb-1">Quarter System</h3><p class="text-gray-400 text-[13px]">4 quarters, just like real basketball. Win 3 of 4 to claim victory.</p></div>
+        <div class="bg-gray-900 border border-gray-800 hover:border-orange-900/50 rounded-2xl p-5 transition-all"><div class="text-[36px] mb-3">🃏</div><h3 class="font-display text-[22px] text-white mb-1">Draft Your Roster</h3><p class="text-gray-400 text-[13px]">5 positions, 500+ cards. Build your perfect 30-card deck.</p></div>
+        <div class="bg-gray-900 border border-gray-800 hover:border-orange-900/50 rounded-2xl p-5 transition-all"><div class="text-[36px] mb-3">⚡</div><h3 class="font-display text-[22px] text-white mb-1">Momentum Meter</h3><p class="text-gray-400 text-[13px]">Build momentum through combos. Unleash Hype Moves when it maxes out.</p></div>
+        <div class="bg-gray-900 border border-gray-800 hover:border-orange-900/50 rounded-2xl p-5 transition-all"><div class="text-[36px] mb-3">🤖</div><h3 class="font-display text-[22px] text-white mb-1">Play vs AI</h3><p class="text-gray-400 text-[13px]">Jump into an instant match against CourtBot. No wait time.</p></div>
+        <div class="bg-gray-900 border border-gray-800 hover:border-orange-900/50 rounded-2xl p-5 transition-all"><div class="text-[36px] mb-3">👥</div><h3 class="font-display text-[22px] text-white mb-1">Friend Battles</h3><p class="text-gray-400 text-[13px]">Add friends by username and challenge them to a direct match.</p></div>
+        <div class="bg-orange-950/30 border border-orange-900/40 rounded-2xl p-5"><div class="text-[36px] mb-3">🏆</div><h3 class="font-display text-[22px] text-orange-300 mb-1">ELO Ranked</h3><p class="text-gray-400 text-[13px]">Climb from Rookie to Champion. Seasonal leaderboards reset monthly.</p></div>
+      </div>
+    </div>
+  </section>
+  <section class="py-24 px-6 text-center relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-orange-950/30 via-black to-black"></div>
+    <div class="relative"><div class="text-[56px] mb-4">🏆</div><h2 class="font-display text-[64px] text-white mb-4">TAKE THE<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">COURT</span></h2><button onclick="openAuth('register')" class="glow-btn inline-block bg-gradient-to-r from-orange-500 to-orange-700 text-white font-bold px-12 py-4 rounded-full text-[16px] uppercase tracking-widest hover:scale-105 transition-all">Play Free — No Download</button></div>
+  </section>
+</div>
 
-  <!-- Season badge -->
-  <div class="relative z-10 mb-5 flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 rounded-full px-4 py-1 text-orange-400 text-[13px] font-semibold fade-up">
-    <span class="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></span>
-    Season 1 — Live Now
-  </div>
-
-  <!-- Headline -->
-  <h1 class="relative z-10 font-display text-center leading-none tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-white via-orange-100 to-orange-600 text-[80px] md:text-[120px] lg:text-[160px] mb-4 fade-up fade-up-d1">
-    COURT<br>MASTERS
-  </h1>
-
-  <!-- Sub-headline -->
-  <p class="relative z-10 text-center text-lg md:text-2xl text-gray-300 font-light mb-2 max-w-2xl px-4 fade-up fade-up-d2">
-    Where <span class="text-orange-400 font-semibold">Basketball Strategy</span> meets <span class="text-orange-400 font-semibold">Card Game Mastery</span>
-  </p>
-  <p class="relative z-10 text-center text-gray-500 text-[15px] mb-10 max-w-lg px-4 fade-up fade-up-d2">
-    Draft your roster, build your deck, and outplay opponents quarter by quarter in the ultimate sports card game.
-  </p>
-
-  <!-- CTAs -->
-  <div class="relative z-10 flex flex-col sm:flex-row gap-4 mb-16 fade-up fade-up-d3">
-    <a href="#cta" class="glow-btn bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-400 hover:to-orange-600 text-white font-bold px-10 py-4 rounded-full text-[17px] uppercase tracking-widest transition-all hover:scale-105">
-      ▶ Play Now — Free
-    </a>
-    <a href="#features" class="border border-orange-500/50 hover:border-orange-400 text-orange-300 hover:text-white font-bold px-10 py-4 rounded-full text-[17px] uppercase tracking-widest transition-all hover:bg-orange-500/10">
-      See How It Works
-    </a>
-  </div>
-
-  <!-- Floating showcase cards -->
-  <div class="relative z-10 flex items-end justify-center gap-4 md:gap-6 px-4 fade-up fade-up-d4">
-
-    <!-- Card left -->
-    <div class="card-hover float float-delay-2 w-[120px] md:w-[160px] rounded-2xl overflow-hidden border border-blue-800/50 shadow-2xl" style="--rot:-8deg; transform:rotate(-8deg);">
-      <div class="bg-gradient-to-b from-blue-950 to-[#0d0d0d] p-2.5">
-        <div class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Shooting Guard</div>
-        <div class="w-full h-[80px] md:h-[104px] bg-gradient-to-br from-blue-800 to-blue-950 rounded-lg flex items-center justify-center text-[44px] mb-2">🎯</div>
-        <div class="font-display text-[16px] md:text-[20px] text-white leading-tight">Clutch Clara</div>
-        <div class="text-[10px] text-blue-400 mb-1.5">Shoot · 3-Point · Clutch</div>
-        <div class="flex justify-between text-[10px] font-bold border-t border-blue-900/50 pt-1.5">
-          <span class="text-blue-400">⚡4</span>
-          <span class="text-orange-400">🏀7</span>
-          <span class="text-green-400">❤️6</span>
+<!-- ═══ DASHBOARD ═══ -->
+<div id="view-dashboard" class="hidden min-h-screen pt-20">
+  <div class="max-w-6xl mx-auto px-4 py-6">
+    <div id="challenges-banner" class="hidden mb-4"></div>
+    <div class="grid lg:grid-cols-3 gap-5 mb-5">
+      <div id="dash-profile" class="bg-gray-900 border border-gray-800 rounded-2xl p-5"></div>
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+        <h3 class="font-display text-[22px] text-white mb-4">PLAY A MATCH</h3>
+        <button onclick="startAIMatch()" class="w-full mb-3 flex items-center gap-3 bg-orange-950/40 hover:bg-orange-900/40 border border-orange-800/50 hover:border-orange-600/70 rounded-xl p-4 transition-all group">
+          <span class="text-3xl">🤖</span>
+          <div class="text-left flex-1"><div class="font-bold text-white group-hover:text-orange-300">vs CourtBot AI</div><div class="text-gray-500 text-xs">Instant start · No wait</div></div>
+          <span class="text-orange-500 group-hover:translate-x-1 transition-transform">→</span>
+        </button>
+        <button onclick="openFriendChallenge()" class="w-full flex items-center gap-3 bg-blue-950/30 hover:bg-blue-900/30 border border-blue-800/40 hover:border-blue-600/60 rounded-xl p-4 transition-all group">
+          <span class="text-3xl">👥</span>
+          <div class="text-left flex-1"><div class="font-bold text-white group-hover:text-blue-300">Challenge a Friend</div><div class="text-gray-500 text-xs">Send a match invite</div></div>
+          <span class="text-blue-500 group-hover:translate-x-1 transition-transform">→</span>
+        </button>
+        <div class="mt-4 pt-4 border-t border-gray-800">
+          <div class="text-[10px] text-gray-600 uppercase tracking-widest mb-2">Recent Matches</div>
+          <div id="recent-matches" class="space-y-1.5 text-[12px] text-gray-500">Loading...</div>
         </div>
       </div>
-      <div class="bg-blue-950/40 px-2.5 py-1.5 text-[10px] text-blue-300 italic">"Ice in her veins."</div>
+      <div id="dash-friends" class="bg-gray-900 border border-gray-800 rounded-2xl p-5"></div>
     </div>
-
-    <!-- Card center (bigger, glowing) -->
-    <div class="card-hover float w-[148px] md:w-[192px] rounded-2xl overflow-hidden border-2 border-yellow-500/70 shadow-2xl shadow-yellow-950/50" style="--rot:0deg;">
-      <div class="bg-gradient-to-b from-amber-950 to-[#0d0d0d] p-3">
-        <div class="text-[10px] font-bold text-yellow-400 uppercase tracking-widest mb-1">⭐ Legend · Center</div>
-        <div class="w-full h-[96px] md:h-[128px] bg-gradient-to-br from-yellow-700 to-orange-900 rounded-lg flex items-center justify-center text-[56px] mb-2">👑</div>
-        <div class="font-display text-[18px] md:text-[24px] text-yellow-300 leading-tight">The Commissioner</div>
-        <div class="text-[10px] text-yellow-500 mb-1">Block · Dominate · Rally</div>
-        <div class="text-[10px] text-gray-300 mb-1.5">When played: all friendly cards get +2 ATK this quarter.</div>
-        <div class="flex justify-between text-[10px] font-bold border-t border-yellow-900/50 pt-1.5">
-          <span class="text-blue-400">⚡2</span>
-          <span class="text-orange-400">🏀9</span>
-          <span class="text-green-400">❤️14</span>
-        </div>
-      </div>
-      <div class="bg-yellow-950/40 px-3 py-1.5 text-[10px] text-yellow-400 italic">"The court is my kingdom."</div>
-    </div>
-
-    <!-- Card right -->
-    <div class="card-hover float float-delay-1 w-[120px] md:w-[160px] rounded-2xl overflow-hidden border border-orange-800/50 shadow-2xl" style="--rot:8deg; transform:rotate(8deg);">
-      <div class="bg-gradient-to-b from-orange-950 to-[#0d0d0d] p-2.5">
-        <div class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Point Guard</div>
-        <div class="w-full h-[80px] md:h-[104px] bg-gradient-to-br from-orange-800 to-orange-950 rounded-lg flex items-center justify-center text-[44px] mb-2">⚡</div>
-        <div class="font-display text-[16px] md:text-[20px] text-white leading-tight">Lightning Leo</div>
-        <div class="text-[10px] text-orange-400 mb-1.5">Speed · Dribble · Pass</div>
-        <div class="flex justify-between text-[10px] font-bold border-t border-orange-900/50 pt-1.5">
-          <span class="text-blue-400">⚡5</span>
-          <span class="text-orange-400">🏀5</span>
-          <span class="text-green-400">❤️8</span>
-        </div>
-      </div>
-      <div class="bg-orange-950/40 px-2.5 py-1.5 text-[10px] text-orange-300 italic">"Faster than a fastbreak."</div>
-    </div>
+    <div id="dash-leaderboard" class="bg-gray-900 border border-gray-800 rounded-2xl p-5"></div>
   </div>
+</div>
 
-  <!-- Scroll hint -->
-  <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-gray-600 text-[11px] animate-bounce pointer-events-none">
-    <span>Scroll to explore</span>
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+<!-- ═══ GAME ═══ -->
+<div id="view-game" class="hidden min-h-screen pt-16 bg-[#0a0a0a]">
+  <div id="game-view"></div>
+</div>
+
+<!-- Overlay -->
+<div id="modal-overlay" class="hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-sm" onclick="hideModals()"></div>
+
+<!-- Auth modal -->
+<div id="modal-auth" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl pointer-events-auto" onclick="event.stopPropagation()">
+    <div class="flex mb-5 bg-gray-800 rounded-xl p-1 gap-1">
+      <button id="tab-login" onclick="setAuthTab('login')" class="flex-1 py-2 rounded-lg font-bold text-sm transition-all bg-orange-600 text-white">Sign In</button>
+      <button id="tab-register" onclick="setAuthTab('register')" class="flex-1 py-2 rounded-lg font-bold text-sm transition-all text-gray-400 hover:text-white">Register</button>
+    </div>
+    <div id="auth-error" class="hidden mb-3 p-3 bg-red-950/60 border border-red-800/50 rounded-lg text-red-400 text-sm"></div>
+    <form id="login-form" class="space-y-3">
+      <input name="email" type="email" placeholder="Email" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-orange-500 transition-colors"/>
+      <input name="password" type="password" placeholder="Password" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-orange-500 transition-colors"/>
+      <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-400 hover:to-orange-600 text-white font-bold py-2.5 rounded-xl transition-all">Sign In</button>
+    </form>
+    <form id="register-form" class="hidden space-y-3">
+      <input name="username" type="text" placeholder="Username (3–30, a-z 0-9 _)" required pattern="[a-zA-Z0-9_]{3,30}" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-orange-500 transition-colors"/>
+      <input name="email" type="email" placeholder="Email" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-orange-500 transition-colors"/>
+      <input name="password" type="password" placeholder="Password (min 6 chars)" required minlength="6" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-orange-500 transition-colors"/>
+      <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-400 hover:to-orange-600 text-white font-bold py-2.5 rounded-xl transition-all">Create Account &amp; Get 30 Cards</button>
+    </form>
   </div>
-</section>
+</div>
 
-
-<!-- ═══════════════════════ STATS BAR ═══════════════════════ -->
-<div class="bg-orange-950/25 border-y border-orange-950/50 py-7">
-  <div class="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-    <div>
-      <div class="font-display text-[42px] text-orange-400 leading-none">500+</div>
-      <div class="text-gray-500 text-[13px] mt-1">Unique Cards</div>
-    </div>
-    <div>
-      <div class="font-display text-[42px] text-orange-400 leading-none">2M+</div>
-      <div class="text-gray-500 text-[13px] mt-1">Players Worldwide</div>
-    </div>
-    <div>
-      <div class="font-display text-[42px] text-orange-400 leading-none">12</div>
-      <div class="text-gray-500 text-[13px] mt-1">Team Franchises</div>
-    </div>
-    <div>
-      <div class="font-display text-[42px] text-orange-400 leading-none">4</div>
-      <div class="text-gray-500 text-[13px] mt-1">Quarters Per Match</div>
+<!-- Add friend modal -->
+<div id="modal-add-friend" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl pointer-events-auto" onclick="event.stopPropagation()">
+    <h3 class="font-display text-[24px] text-white mb-4">ADD FRIEND</h3>
+    <div id="friend-error" class="hidden mb-3 p-3 bg-red-950/60 border border-red-800/50 rounded-lg text-red-400 text-sm"></div>
+    <input id="friend-username" type="text" placeholder="Enter their exact username..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-orange-500 transition-colors mb-3"/>
+    <div class="flex gap-2">
+      <button onclick="sendFriendRequest()" class="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl transition-all">Send Request</button>
+      <button onclick="hideModals()" class="px-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-all text-gray-400">Cancel</button>
     </div>
   </div>
 </div>
 
-
-<!-- ═══════════════════════ FEATURES ═══════════════════════ -->
-<section id="features" class="py-28 px-6">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-16">
-      <p class="text-orange-500 font-bold text-[13px] uppercase tracking-widest mb-3">Game Mechanics</p>
-      <h2 class="font-display text-[52px] md:text-[80px] text-white leading-none mb-4">PLAY LIKE A<br>CHAMPION</h2>
-      <p class="text-gray-400 max-w-lg mx-auto text-[15px]">Court Masters blends the depth of a trading card game with the pace and rules of basketball — every possession matters.</p>
-    </div>
-
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-
-      <div class="bg-gradient-to-br from-gray-900 to-[#0d0d0d] border border-gray-800 hover:border-orange-900/60 rounded-2xl p-6 transition-all group">
-        <div class="text-[40px] mb-4">🏀</div>
-        <h3 class="font-display text-[26px] text-white mb-2">Quarter System</h3>
-        <p class="text-gray-400 text-[14px] leading-relaxed">Play in 4 quarters like real basketball. Each quarter has unique conditions — Overtime mechanics can flip the game in an instant.</p>
-      </div>
-
-      <div class="bg-gradient-to-br from-gray-900 to-[#0d0d0d] border border-gray-800 hover:border-orange-900/60 rounded-2xl p-6 transition-all group">
-        <div class="text-[40px] mb-4">🃏</div>
-        <h3 class="font-display text-[26px] text-white mb-2">Draft Your Roster</h3>
-        <p class="text-gray-400 text-[14px] leading-relaxed">Build a 30-card deck across 5 positions: PG, SG, SF, PF, and Center. Every position unlocks unique abilities and synergies.</p>
-      </div>
-
-      <div class="bg-gradient-to-br from-gray-900 to-[#0d0d0d] border border-gray-800 hover:border-orange-900/60 rounded-2xl p-6 transition-all group">
-        <div class="text-[40px] mb-4">⚡</div>
-        <h3 class="font-display text-[26px] text-white mb-2">Momentum Meter</h3>
-        <p class="text-gray-400 text-[14px] leading-relaxed">Build momentum through combos and fast-break plays. Fill your Momentum Meter to unleash game-changing Hype Moves.</p>
-      </div>
-
-      <div class="bg-gradient-to-br from-gray-900 to-[#0d0d0d] border border-gray-800 hover:border-orange-900/60 rounded-2xl p-6 transition-all group">
-        <div class="text-[40px] mb-4">🏆</div>
-        <h3 class="font-display text-[26px] text-white mb-2">Team Synergies</h3>
-        <p class="text-gray-400 text-[14px] leading-relaxed">Field 5 players with the right chemistry. Franchise bonuses activate when you field a full lineup from the same team.</p>
-      </div>
-
-      <div class="bg-gradient-to-br from-gray-900 to-[#0d0d0d] border border-gray-800 hover:border-orange-900/60 rounded-2xl p-6 transition-all group">
-        <div class="text-[40px] mb-4">🎯</div>
-        <h3 class="font-display text-[26px] text-white mb-2">Fouls & Free Throws</h3>
-        <p class="text-gray-400 text-[14px] leading-relaxed">Strategic fouls and free-throw mechanics add pressure. Force opponents into high-stakes moments they can't escape.</p>
-      </div>
-
-      <div class="bg-gradient-to-br from-orange-950/30 to-[#0d0d0d] border border-orange-900/40 hover:border-orange-600/50 rounded-2xl p-6 transition-all group">
-        <div class="text-[40px] mb-4">🌟</div>
-        <h3 class="font-display text-[26px] text-orange-300 mb-2">All-Star Events</h3>
-        <p class="text-gray-400 text-[14px] leading-relaxed">Monthly events with legendary cards and limited-edition cosmetics. The best players compete for the Championship Trophy.</p>
-      </div>
-
-    </div>
+<!-- Challenge friend modal -->
+<div id="modal-challenge-friend" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl pointer-events-auto" onclick="event.stopPropagation()">
+    <h3 class="font-display text-[24px] text-white mb-1">CHALLENGE A FRIEND</h3>
+    <p class="text-gray-500 text-sm mb-4">Pick someone to send a match invite to.</p>
+    <div id="challenge-friends-list" class="space-y-2 max-h-64 overflow-y-auto scrollbar-hide"></div>
+    <button onclick="hideModals()" class="mt-4 w-full py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-gray-400 text-sm transition-all">Cancel</button>
   </div>
-</section>
+</div>
 
-
-<!-- ═══════════════════════ HOW TO PLAY ═══════════════════════ -->
-<section id="how-to-play" class="py-28 px-6 bg-gradient-to-b from-black to-gray-950 relative overflow-hidden">
-
-  <!-- Court art background -->
-  <div class="absolute inset-0 pointer-events-none opacity-[.04]">
-    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 border-2 border-orange-400 rounded-full"></div>
-    <div class="absolute bottom-0 inset-x-0 h-px bg-orange-400"></div>
+<!-- Result modal -->
+<div id="modal-result" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl pointer-events-auto" onclick="event.stopPropagation()">
+    <div id="result-content"></div>
   </div>
+</div>
 
-  <div class="max-w-5xl mx-auto relative">
-    <div class="text-center mb-16">
-      <p class="text-orange-500 font-bold text-[13px] uppercase tracking-widest mb-3">Getting Started</p>
-      <h2 class="font-display text-[52px] md:text-[80px] text-white leading-none">HOW TO PLAY</h2>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-14 items-center">
-
-      <!-- Steps -->
-      <div class="space-y-8">
-        <div class="flex gap-4">
-          <div class="shrink-0 w-12 h-12 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center font-display text-[24px] text-orange-400">1</div>
-          <div>
-            <h3 class="font-bold text-white text-[17px] mb-1">Build Your Team</h3>
-            <p class="text-gray-400 text-[14px]">Choose your franchise, draft 5 starting players, and fill a 30-card deck with Plays, Tactics, and Special Moves.</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="shrink-0 w-12 h-12 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center font-display text-[24px] text-orange-400">2</div>
-          <div>
-            <h3 class="font-bold text-white text-[17px] mb-1">Tip-Off</h3>
-            <p class="text-gray-400 text-[14px]">Draw 4 cards and take the first possession. Each turn is a possession — score by playing your players' attacks effectively against your opponent's defense.</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="shrink-0 w-12 h-12 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center font-display text-[24px] text-orange-400">3</div>
-          <div>
-            <h3 class="font-bold text-white text-[17px] mb-1">Contest 4 Quarters</h3>
-            <p class="text-gray-400 text-[14px]">Score more points than your opponent in each quarter. Winning a quarter grants bonus passive effects. Win 3 of 4 quarters to claim victory.</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="shrink-0 w-12 h-12 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center font-display text-[24px] text-orange-400">4</div>
-          <div>
-            <h3 class="font-bold text-white text-[17px] mb-1">Climb to the Finals</h3>
-            <p class="text-gray-400 text-[14px]">Win ranked matches to climb the league ladder. Reach the Finals for exclusive Championship cards and season rewards.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Court SVG illustration -->
-      <div class="bg-gradient-to-br from-orange-950/20 to-gray-950 border border-orange-950/40 rounded-3xl p-8 flex items-center justify-center">
-        <svg viewBox="0 0 320 220" class="w-full max-w-xs" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Floor -->
-          <rect x="8" y="8" width="304" height="204" rx="10" fill="#3d1a00" fill-opacity=".5"/>
-          <rect x="8" y="8" width="304" height="204" rx="10" stroke="#ff6b00" stroke-width="2" stroke-opacity=".45"/>
-          <!-- Half-court line -->
-          <line x1="160" y1="8" x2="160" y2="212" stroke="#ff6b00" stroke-width="1.5" stroke-opacity=".4"/>
-          <!-- Center circle -->
-          <circle cx="160" cy="110" r="34" stroke="#ff6b00" stroke-width="1.5" stroke-opacity=".4"/>
-          <!-- Left key -->
-          <rect x="8" y="72" width="66" height="76" stroke="#ff6b00" stroke-width="1.5" stroke-opacity=".35" fill="none"/>
-          <!-- Left arc -->
-          <path d="M 74 72 Q 130 110 74 148" stroke="#ff6b00" stroke-width="1.5" stroke-opacity=".35" fill="none"/>
-          <!-- Right key -->
-          <rect x="246" y="72" width="66" height="76" stroke="#ff6b00" stroke-width="1.5" stroke-opacity=".35" fill="none"/>
-          <!-- Right arc -->
-          <path d="M 246 72 Q 190 110 246 148" stroke="#ff6b00" stroke-width="1.5" stroke-opacity=".35" fill="none"/>
-          <!-- Basketball -->
-          <circle cx="160" cy="110" r="14" fill="#ff6b00" fill-opacity=".9"/>
-          <path d="M146 110 Q160 96 174 110 Q160 124 146 110" fill="#cc4400"/>
-          <line x1="160" y1="96" x2="160" y2="124" stroke="#cc4400" stroke-width="1.2"/>
-          <!-- Blue team -->
-          <circle cx="88"  cy="86"  r="7" fill="#3b82f6"/>
-          <circle cx="88"  cy="134" r="7" fill="#3b82f6"/>
-          <circle cx="112" cy="110" r="7" fill="#3b82f6"/>
-          <!-- Red team -->
-          <circle cx="232" cy="86"  r="7" fill="#ef4444"/>
-          <circle cx="232" cy="134" r="7" fill="#ef4444"/>
-          <circle cx="208" cy="110" r="7" fill="#ef4444"/>
-        </svg>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-
-<!-- ═══════════════════════ CARD SHOWCASE ═══════════════════════ -->
-<section id="cards" class="py-28 px-6 bg-black">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-16">
-      <p class="text-orange-500 font-bold text-[13px] uppercase tracking-widest mb-3">The Roster</p>
-      <h2 class="font-display text-[52px] md:text-[80px] text-white leading-none mb-4">COLLECT LEGENDS</h2>
-      <p class="text-gray-400 max-w-xl mx-auto text-[15px]">Over 500 cards across 5 rarities — from rookie bench-warmers to all-time legend status. Who will you build around?</p>
-    </div>
-
-    <div class="flex flex-wrap justify-center gap-5">
-
-      <!-- Common -->
-      <div class="card-hover w-[168px] rounded-2xl overflow-hidden border border-gray-700 shadow-xl bg-gradient-to-b from-gray-800 to-[#111] cursor-pointer">
-        <div class="p-3">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Common</span>
-            <span class="text-[10px] font-bold text-gray-400 bg-gray-700/60 px-2 py-0.5 rounded">PG</span>
-          </div>
-          <div class="w-full h-28 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center text-[48px] mb-2">🏃</div>
-          <div class="font-display text-[20px] text-white leading-tight">Bench Benny</div>
-          <div class="text-[10px] text-gray-500 mb-1.5">Hustle · Defense</div>
-          <div class="flex justify-between text-[10px] font-bold border-t border-gray-700/60 pt-1.5">
-            <span class="text-blue-400">⚡2</span><span class="text-orange-400">🏀3</span><span class="text-green-400">❤️5</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Rare -->
-      <div class="card-hover w-[168px] rounded-2xl overflow-hidden border border-blue-700/60 shadow-xl shadow-blue-950/30 bg-gradient-to-b from-blue-950/70 to-[#111] cursor-pointer">
-        <div class="p-3">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Rare</span>
-            <span class="text-[10px] font-bold text-blue-400 bg-blue-900/40 px-2 py-0.5 rounded">SF</span>
-          </div>
-          <div class="w-full h-28 bg-gradient-to-br from-blue-800 to-blue-950 rounded-lg flex items-center justify-center text-[48px] mb-2">🦅</div>
-          <div class="font-display text-[20px] text-white leading-tight">Wing Walker</div>
-          <div class="text-[10px] text-blue-400 mb-1">Fly · Intercept</div>
-          <div class="text-[10px] text-gray-400 mb-1.5">+1 to all shots from the wing.</div>
-          <div class="flex justify-between text-[10px] font-bold border-t border-blue-900/40 pt-1.5">
-            <span class="text-blue-400">⚡4</span><span class="text-orange-400">🏀6</span><span class="text-green-400">❤️7</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Epic -->
-      <div class="card-hover w-[168px] rounded-2xl overflow-hidden border border-purple-700/60 shadow-xl shadow-purple-950/40 bg-gradient-to-b from-purple-950/70 to-[#111] cursor-pointer">
-        <div class="p-3">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Epic</span>
-            <span class="text-[10px] font-bold text-purple-400 bg-purple-900/40 px-2 py-0.5 rounded">C</span>
-          </div>
-          <div class="w-full h-28 bg-gradient-to-br from-purple-800 to-purple-950 rounded-lg flex items-center justify-center text-[48px] mb-2">🧱</div>
-          <div class="font-display text-[20px] text-white leading-tight">The Wall</div>
-          <div class="text-[10px] text-purple-400 mb-1">Block · Protect · Anchor</div>
-          <div class="text-[10px] text-gray-400 mb-1.5">Nullify the first attack each quarter.</div>
-          <div class="flex justify-between text-[10px] font-bold border-t border-purple-900/40 pt-1.5">
-            <span class="text-blue-400">⚡1</span><span class="text-orange-400">🏀8</span><span class="text-green-400">❤️12</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Legend -->
-      <div class="card-hover w-[168px] rounded-2xl overflow-hidden border-2 border-yellow-500/70 shadow-2xl shadow-yellow-950/50 bg-gradient-to-b from-amber-950/60 to-[#111] cursor-pointer relative">
-        <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent pointer-events-none"></div>
-        <div class="p-3">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-[10px] font-bold text-yellow-400 uppercase tracking-wider">⭐ Legend</span>
-            <span class="text-[10px] font-bold text-yellow-400 bg-yellow-900/40 px-2 py-0.5 rounded">PF</span>
-          </div>
-          <div class="w-full h-28 bg-gradient-to-br from-yellow-700 to-amber-950 rounded-lg flex items-center justify-center text-[48px] mb-2">🦁</div>
-          <div class="font-display text-[20px] text-yellow-200 leading-tight">King Kourt</div>
-          <div class="text-[10px] text-yellow-500 mb-1">Reign · Dunk · Inspire</div>
-          <div class="text-[10px] text-gray-300 mb-1.5">Draw 2 cards when scoring from the paint.</div>
-          <div class="flex justify-between text-[10px] font-bold border-t border-yellow-900/40 pt-1.5">
-            <span class="text-blue-400">⚡3</span><span class="text-orange-400">🏀10</span><span class="text-green-400">❤️10</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Champion -->
-      <div class="card-hover w-[168px] rounded-2xl overflow-hidden border-2 border-orange-400/80 shadow-2xl shadow-orange-950/60 bg-gradient-to-b from-orange-950/70 to-[#111] cursor-pointer relative">
-        <div class="absolute inset-0 bg-gradient-to-br from-orange-500/8 to-transparent pointer-events-none"></div>
-        <div class="p-3">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-[10px] font-bold text-orange-300 uppercase tracking-wider">🔥 Champion</span>
-            <span class="text-[10px] font-bold text-orange-300 bg-orange-900/40 px-2 py-0.5 rounded">PG</span>
-          </div>
-          <div class="w-full h-28 bg-gradient-to-br from-orange-600 to-red-950 rounded-lg flex items-center justify-center text-[48px] mb-2">👑</div>
-          <div class="font-display text-[20px] text-orange-200 leading-tight">The Commissioner</div>
-          <div class="text-[10px] text-orange-400 mb-1">Rally · Reign · Ascend</div>
-          <div class="text-[10px] text-gray-300 mb-1.5">Once per game: reset all Stamina. All cards gain Overload.</div>
-          <div class="flex justify-between text-[10px] font-bold border-t border-orange-900/40 pt-1.5">
-            <span class="text-blue-400">⚡5</span><span class="text-orange-400">🏀12</span><span class="text-green-400">❤️18</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Rarity legend -->
-    <div class="flex flex-wrap justify-center gap-6 mt-10 text-[13px]">
-      <span class="flex items-center gap-2 text-gray-400"><span class="w-3 h-3 rounded-full bg-gray-500 shrink-0"></span>Common</span>
-      <span class="flex items-center gap-2 text-blue-400"><span class="w-3 h-3 rounded-full bg-blue-500 shrink-0"></span>Rare</span>
-      <span class="flex items-center gap-2 text-purple-400"><span class="w-3 h-3 rounded-full bg-purple-500 shrink-0"></span>Epic</span>
-      <span class="flex items-center gap-2 text-yellow-400"><span class="w-3 h-3 rounded-full bg-yellow-500 shrink-0"></span>Legend</span>
-      <span class="flex items-center gap-2 text-orange-400"><span class="w-3 h-3 rounded-full bg-orange-500 animate-pulse shrink-0"></span>Champion</span>
-    </div>
-  </div>
-</section>
-
-
-<!-- ═══════════════════════ TESTIMONIALS ═══════════════════════ -->
-<section id="community" class="py-28 px-6 bg-gradient-to-b from-gray-950 to-black">
-  <div class="max-w-5xl mx-auto">
-    <div class="text-center mb-16">
-      <p class="text-orange-500 font-bold text-[13px] uppercase tracking-widest mb-3">The Community</p>
-      <h2 class="font-display text-[52px] md:text-[80px] text-white leading-none">FROM THE<br>LOCKER ROOM</h2>
-    </div>
-    <div class="grid md:grid-cols-3 gap-6">
-
-      <div class="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-        <div class="flex gap-0.5 text-yellow-400 text-[14px] mb-3">★★★★★</div>
-        <p class="text-gray-300 text-[14px] leading-relaxed mb-5">"Finally a card game that truly understands basketball. The Quarter system is genius — every game feels like a real match with real momentum swings."</p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-orange-900 flex items-center justify-center font-display text-[18px] text-white">J</div>
-          <div>
-            <div class="font-semibold text-white text-[14px]">JordanFan23</div>
-            <div class="text-gray-500 text-[12px]">Diamond League</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-        <div class="flex gap-0.5 text-yellow-400 text-[14px] mb-3">★★★★★</div>
-        <p class="text-gray-300 text-[14px] leading-relaxed mb-5">"The Team Synergy system has more depth than most TCGs. Three months in and I'm still discovering new combos with my full-court press deck."</p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-blue-900 flex items-center justify-center font-display text-[18px] text-white">S</div>
-          <div>
-            <div class="font-semibold text-white text-[14px]">SkyHookSophia</div>
-            <div class="text-gray-500 text-[12px]">Championship Finalist</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-        <div class="flex gap-0.5 text-yellow-400 text-[14px] mb-3">★★★★★</div>
-        <p class="text-gray-300 text-[14px] leading-relaxed mb-5">"Got my whole crew hooked. Hearthstone meets the NBA? Best idea in years. The All-Star events are absolutely wild — can't put it down."</p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-purple-900 flex items-center justify-center font-display text-[18px] text-white">D</div>
-          <div>
-            <div class="font-semibold text-white text-[14px]">DunksAndDecks</div>
-            <div class="text-gray-500 text-[12px]">Top 100 Player</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-
-<!-- ═══════════════════════ FINAL CTA ═══════════════════════ -->
-<section id="cta" class="py-36 px-6 relative overflow-hidden">
-  <div class="absolute inset-0 bg-gradient-to-br from-orange-950/35 via-black to-black"></div>
-  <div class="absolute inset-0 grid-lines opacity-20 pointer-events-none"></div>
-  <!-- Concentric court circles -->
-  <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[640px] h-[640px] border border-orange-500/8  rounded-full pointer-events-none"></div>
-  <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] border border-orange-500/12 rounded-full pointer-events-none"></div>
-
-  <div class="relative max-w-3xl mx-auto text-center">
-    <div class="text-[64px] mb-5">🏆</div>
-    <h2 class="font-display leading-none text-[60px] md:text-[96px] text-white mb-5">
-      TAKE THE<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">COURT</span>
-    </h2>
-    <p class="text-gray-400 text-[17px] mb-10 max-w-md mx-auto">
-      Start free. Build your deck. Prove you're the ultimate Court Master. Season 1 is live — don't miss the opening tip-off.
-    </p>
-    <a href="#" class="glow-btn inline-block bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-400 hover:to-orange-600 text-white font-bold px-14 py-5 rounded-full text-[18px] uppercase tracking-widest transition-all hover:scale-105">
-      Play Free — No Download
-    </a>
-    <p class="text-gray-600 text-[12px] mt-5">Available on Web · iOS · Android &nbsp;·&nbsp; Free to play · No pay-to-win</p>
-  </div>
-</section>
-
-
-<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
-<footer class="bg-black border-t border-gray-900 py-12 px-6">
-  <div class="max-w-5xl mx-auto">
-    <div class="flex flex-col md:flex-row justify-between items-start gap-10 mb-8">
-      <div>
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-800 flex items-center justify-center font-display text-[16px] text-white">CM</div>
-          <span class="font-display text-[20px] tracking-widest text-orange-400">COURT MASTERS</span>
-        </div>
-        <p class="text-gray-600 text-[13px] max-w-[220px]">The ultimate card strategy game where basketball and tactics collide.</p>
-      </div>
-      <div class="grid grid-cols-3 gap-10 text-[13px]">
-        <div>
-          <div class="text-gray-400 font-semibold mb-3">Game</div>
-          <ul class="space-y-2 text-gray-600">
-            <li><a href="#" class="hover:text-orange-400 transition-colors">Play Now</a></li>
-            <li><a href="#" class="hover:text-orange-400 transition-colors">Card Database</a></li>
-            <li><a href="#" class="hover:text-orange-400 transition-colors">Leaderboard</a></li>
-            <li><a href="#" class="hover:text-orange-400 transition-colors">Tournaments</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="text-gray-400 font-semibold mb-3">Community</div>
-          <ul class="space-y-2 text-gray-600">
-            <li><a href="#" class="hover:text-orange-400 transition-colors">Discord</a></li>
-            <li><a href="#" class="hover:text-orange-400 transition-colors">Reddit</a></li>
-            <li><a href="#" class="hover:text-orange-400 transition-colors">Twitter</a></li>
-            <li><a href="#" class="hover:text-orange-400 transition-colors">YouTube</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="text-gray-400 font-semibold mb-3">Support</div>
-          <ul class="space-y-2 text-gray-600">
-            <li><a href="#" class="hover:text-orange-400 transition-colors">FAQ</a></li>
-            <li><a href="#" class="hover:text-orange-400 transition-colors">Contact</a></li>
-            <li><a href="#" class="hover:text-orange-400 transition-colors">Privacy</a></li>
-            <li><a href="#" class="hover:text-orange-400 transition-colors">Terms</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="border-t border-gray-900 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-gray-700 text-[12px]">
-      <span>© <span id="year"></span> Court Masters. All rights reserved.</span>
-      <span>Not affiliated with any professional basketball organization.</span>
-    </div>
-  </div>
-</footer>
-
+<!-- Toast -->
+<div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl font-semibold text-sm shadow-xl border"></div>
 
 <script>
-  document.getElementById('year').textContent = new Date().getFullYear();
+const S={token:localStorage.getItem('cm_token'),refreshToken:localStorage.getItem('cm_refresh'),user:JSON.parse(localStorage.getItem('cm_user')||'null'),view:'landing',match:null,matchId:null,matchData:null,cardCache:{},friends:[],challenges:[],leaderboard:[],pollTimer:null,gameLog:[]};
 
-  // Smooth scroll for anchor links
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      const target = document.querySelector(a.getAttribute('href'));
-      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    });
-  });
+async function api(method,path,body){
+  const opts={method,headers:{'Content-Type':'application/json'}};
+  if(S.token)opts.headers['Authorization']='Bearer '+S.token;
+  if(body!==undefined)opts.body=JSON.stringify(body);
+  let res=await fetch('/api'+path,opts);
+  if(res.status===401&&S.refreshToken){
+    const r=await fetch('/api/auth/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({refreshToken:S.refreshToken})});
+    if(r.ok){const{accessToken}=await r.json();S.token=accessToken;localStorage.setItem('cm_token',accessToken);opts.headers['Authorization']='Bearer '+S.token;res=await fetch('/api'+path,opts);}
+    else{logout();return null;}
+  }
+  try{return await res.json();}catch{return null;}
+}
 
-  // Fade-in on scroll for sections
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('opacity-100', 'translate-y-0');
-        entry.target.classList.remove('opacity-0', 'translate-y-6');
-        io.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
+function showView(v){S.view=v;['landing','dashboard','game'].forEach(n=>document.getElementById('view-'+n).classList.toggle('hidden',n!==v));if(v!=='game')stopPolling();updateNav();}
+function navHome(){if(S.user)showView('dashboard');else showView('landing');}
+function updateNav(){
+  const el=document.getElementById('nav-user'),btn=document.getElementById('nav-btn');
+  if(S.user){el.classList.remove('hidden');el.textContent=(S.user.avatar||'🏀')+' '+S.user.username;btn.textContent='Dashboard';btn.onclick=()=>showView('dashboard');}
+  else{el.classList.add('hidden');btn.textContent='Play Free';btn.onclick=()=>openAuth('register');}
+}
 
-  document.querySelectorAll('section > div, .grid > div').forEach(el => {
-    el.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-6');
-    io.observe(el);
-  });
+function openAuth(tab){setAuthTab(tab);document.getElementById('auth-error').classList.add('hidden');showModal('modal-auth');}
+function setAuthTab(tab){
+  document.getElementById('login-form').classList.toggle('hidden',tab!=='login');
+  document.getElementById('register-form').classList.toggle('hidden',tab!=='register');
+  document.getElementById('tab-login').className='flex-1 py-2 rounded-lg font-bold text-sm transition-all '+(tab==='login'?'bg-orange-600 text-white':'text-gray-400 hover:text-white');
+  document.getElementById('tab-register').className='flex-1 py-2 rounded-lg font-bold text-sm transition-all '+(tab==='register'?'bg-orange-600 text-white':'text-gray-400 hover:text-white');
+}
+
+document.getElementById('login-form').addEventListener('submit',async e=>{
+  e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
+  const data=await api('POST','/auth/login',d);
+  if(!data||data.error||data.errors){showAuthError(data?.errors?.[0]?.msg||data?.error||'Login failed');return;}
+  applyAuth(data);hideModals();await loadDashboard();showView('dashboard');
+});
+document.getElementById('register-form').addEventListener('submit',async e=>{
+  e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
+  const data=await api('POST','/auth/register',d);
+  if(!data||data.error||data.errors){showAuthError(data?.errors?.[0]?.msg||data?.error||'Registration failed');return;}
+  applyAuth(data);hideModals();await loadDashboard();showView('dashboard');
+});
+function applyAuth(data){S.token=data.accessToken;S.refreshToken=data.refreshToken;S.user=data.user;localStorage.setItem('cm_token',data.accessToken);localStorage.setItem('cm_refresh',data.refreshToken);localStorage.setItem('cm_user',JSON.stringify(data.user));}
+function logout(){if(S.refreshToken)api('POST','/auth/logout',{refreshToken:S.refreshToken});S.token=S.refreshToken=S.user=null;localStorage.clear();stopPolling();showView('landing');}
+function showAuthError(msg){const el=document.getElementById('auth-error');el.textContent=msg;el.classList.remove('hidden');}
+
+async function loadDashboard(){
+  const[profile,friends,lb,challenges,matches]=await Promise.all([api('GET','/users/me'),api('GET','/friends'),api('GET','/leaderboard?limit=10'),api('GET','/friends/challenges'),api('GET','/matches')]);
+  if(profile&&!profile.error){S.user=profile;localStorage.setItem('cm_user',JSON.stringify(profile));}
+  S.friends=friends||[];S.leaderboard=lb||[];S.challenges=challenges||[];
+  renderDashboard(matches||[]);
+}
+
+function renderDashboard(matches=[]){renderProfile();renderFriendsPanel();renderLeaderboard();renderChallengesBanner();renderRecentMatches(matches);updateNav();}
+
+function renderProfile(){
+  const u=S.user;if(!u)return;
+  const wr=u.wins+u.losses>0?Math.round(u.wins/(u.wins+u.losses)*100):0;
+  document.getElementById('dash-profile').innerHTML=`
+    <div class="flex items-center gap-3 mb-4"><div class="w-14 h-14 rounded-full bg-orange-900/40 border border-orange-700/40 flex items-center justify-center text-3xl">${u.avatar||'🏀'}</div><div><div class="font-display text-[24px] text-white leading-tight">${u.username}</div><div class="text-orange-400 text-sm font-bold">${u.rank||'Rookie'}</div></div></div>
+    <div class="grid grid-cols-4 gap-2 text-center mb-4">
+      <div class="bg-gray-800/60 rounded-xl p-2"><div class="font-display text-[20px] text-orange-400">${u.elo||1000}</div><div class="text-gray-600 text-[10px]">ELO</div></div>
+      <div class="bg-gray-800/60 rounded-xl p-2"><div class="font-display text-[20px] text-green-400">${u.wins||0}</div><div class="text-gray-600 text-[10px]">Wins</div></div>
+      <div class="bg-gray-800/60 rounded-xl p-2"><div class="font-display text-[20px] text-red-400">${u.losses||0}</div><div class="text-gray-600 text-[10px]">Losses</div></div>
+      <div class="bg-gray-800/60 rounded-xl p-2"><div class="font-display text-[20px] text-blue-400">${wr}%</div><div class="text-gray-600 text-[10px]">Win%</div></div>
+    </div>
+    <div class="text-center text-[11px] text-gray-600 mb-1">Coins: <span class="text-yellow-500 font-bold">${u.coins||0} 🪙</span></div>
+    <button onclick="logout()" class="mt-3 w-full py-1.5 rounded-lg text-gray-600 hover:text-red-400 text-[12px] transition-colors border border-gray-800 hover:border-red-900">Sign Out</button>`;
+}
+
+function renderFriendsPanel(){
+  const accepted=S.friends.filter(f=>f.status==='accepted');
+  const incoming=S.friends.filter(f=>f.status==='pending'&&f.direction==='received');
+  const outgoing=S.friends.filter(f=>f.status==='pending'&&f.direction==='sent');
+  document.getElementById('dash-friends').innerHTML=`
+    <div class="flex items-center justify-between mb-3"><h3 class="font-display text-[20px] text-white">FRIENDS <span class="text-orange-400">${accepted.length}</span></h3><button onclick="showModal('modal-add-friend')" class="text-orange-400 hover:text-orange-300 text-[13px] font-bold">+ Add</button></div>
+    ${incoming.length?`<div class="mb-3"><div class="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Requests</div>${incoming.map(f=>`<div class="flex items-center justify-between py-2 border-b border-gray-800"><span class="text-white text-sm">${f.avatar||'🏀'} ${f.username}</span><div class="flex gap-1.5"><button onclick="acceptFriend(${f.friendship_id})" class="text-[11px] bg-green-700 hover:bg-green-600 px-2.5 py-1 rounded-lg text-white font-bold">Accept</button><button onclick="declineFriend(${f.friendship_id})" class="text-[11px] bg-gray-700 px-2 py-1 rounded-lg text-gray-300">✕</button></div></div>`).join('')}</div>`:''}
+    ${!accepted.length&&!incoming.length?`<div class="text-gray-600 text-[13px] text-center py-6">No friends yet.<br>Add someone to battle!</div>`:''}
+    <div class="space-y-1.5 max-h-48 overflow-y-auto scrollbar-hide">
+      ${accepted.map(f=>`<div class="flex items-center justify-between py-1.5 px-2 hover:bg-gray-800/40 rounded-xl transition-all"><div class="flex items-center gap-2"><span class="text-[18px]">${f.avatar||'🏀'}</span><div><div class="text-white text-[13px] font-semibold">${f.username}</div><div class="text-gray-600 text-[11px]">${f.rank}·${f.elo}</div></div></div><button onclick="challengeSpecificFriend(${f.id},'${f.username}')" class="text-[11px] bg-orange-700 hover:bg-orange-600 px-2.5 py-1 rounded-full text-white font-bold transition-all">⚔ Battle</button></div>`).join('')}
+    </div>
+    ${outgoing.length?`<div class="mt-2 pt-2 border-t border-gray-800 text-[11px] text-gray-600">Pending: ${outgoing.map(f=>f.username).join(', ')}</div>`:''}`;
+}
+
+function renderLeaderboard(){
+  document.getElementById('dash-leaderboard').innerHTML=`
+    <div class="flex items-center justify-between mb-4"><h3 class="font-display text-[22px] text-white">🏆 LEADERBOARD</h3><div class="text-gray-600 text-[12px]">Top 10 by ELO</div></div>
+    <div class="grid md:grid-cols-2 gap-2">
+      ${S.leaderboard.map(p=>`<div class="flex items-center gap-3 py-2 px-3 rounded-xl ${p.id===S.user?.id?'bg-orange-950/40 border border-orange-900/50':'hover:bg-gray-800/40'} transition-all"><div class="font-display text-[18px] w-7 ${['text-yellow-400','text-gray-300','text-orange-600'][p.position-1]||'text-gray-600'}">${p.position}</div><span class="text-[18px]">${p.avatar||'🏀'}</span><div class="flex-1 min-w-0"><div class="text-white text-[13px] font-semibold truncate">${p.username}</div><div class="text-gray-600 text-[10px]">${p.rank}</div></div><div class="font-display text-orange-400 text-[16px]">${p.elo}</div></div>`).join('')}
+    </div>`;
+}
+
+function renderChallengesBanner(){
+  const el=document.getElementById('challenges-banner');
+  if(!S.challenges.length){el.classList.add('hidden');return;}
+  el.classList.remove('hidden');
+  el.innerHTML=S.challenges.map(c=>`<div class="flex items-center justify-between bg-orange-950/40 border border-orange-800/50 rounded-xl px-4 py-3 mb-2"><span class="text-orange-200 text-sm">${c.challenger_avatar||'🏀'} <strong>${c.challenger_name}</strong> challenged you!</span><div class="flex gap-2 shrink-0"><button onclick="acceptChallenge(${c.id})" class="text-[12px] bg-orange-600 hover:bg-orange-500 px-3 py-1.5 rounded-full text-white font-bold">Accept ⚔</button><button onclick="declineChallenge(${c.id})" class="text-[12px] bg-gray-700 px-2.5 py-1.5 rounded-full text-gray-300">Decline</button></div></div>`).join('');
+}
+
+function renderRecentMatches(matches){
+  const el=document.getElementById('recent-matches');
+  if(!matches.length){el.innerHTML='<div class="text-gray-700">No matches yet</div>';return;}
+  el.innerHTML=matches.slice(0,5).map(m=>{
+    const won=m.winner_id===S.user?.id,draw=!m.winner_id&&m.status==='completed',ip=m.status==='active';
+    const opp=m.is_ai_match?'CourtBot 🤖':(m.player1===S.user?.username?m.player2:m.player1)||'?';
+    const t1=(m.q1_p1||0)+(m.q2_p1||0)+(m.q3_p1||0)+(m.q4_p1||0),t2=(m.q1_p2||0)+(m.q2_p2||0)+(m.q3_p2||0)+(m.q4_p2||0);
+    const myT=m.player1===S.user?.username?t1:t2,thT=m.player1===S.user?.username?t2:t1;
+    return `<div class="flex items-center justify-between ${ip?'cursor-pointer hover:text-orange-400':''}" ${ip?`onclick="resumeMatch('${m.id}')"`:''}><span>${ip?'⏳':draw?'🤝':won?'✅':'❌'} vs ${opp}</span><span class="${won?'text-green-400':draw?'text-yellow-500':ip?'text-orange-400':'text-red-400'}">${ip?'Continue →':myT+'-'+thT}</span></div>`;
+  }).join('');
+}
+
+async function resumeMatch(matchId){
+  S.matchId=matchId;const data=await api('GET','/matches/'+matchId);
+  if(!data||data.error){showToast('Could not load match','error');return;}
+  S.match=data.game_state;S.matchData=data;S.gameLog=data.game_state?.log||[];
+  await ensureCards();showView('game');renderGame();
+  if(!data.is_ai_match)startPolling();
+}
+
+async function startAIMatch(){
+  const btn=event.currentTarget;btn.disabled=true;
+  const orig=btn.innerHTML;btn.innerHTML='<span class="opacity-60">Starting...</span>';
+  const data=await api('POST','/matches/vs-ai');
+  btn.disabled=false;btn.innerHTML=orig;
+  if(!data||data.error){showToast(data?.error||'Could not start match','error');return;}
+  S.matchId=data.matchId;S.match=data.gameState;S.matchData={is_ai_match:1,player1_id:S.user.id};S.gameLog=data.gameState?.log||[];
+  await ensureCards();showView('game');renderGame();
+}
+
+async function ensureCards(){
+  if(Object.keys(S.cardCache).length>30)return;
+  const cards=await api('GET','/cards');
+  if(cards)cards.forEach(c=>{S.cardCache[c.id]=c;});
+}
+
+function startPolling(){
+  stopPolling();
+  S.pollTimer=setInterval(async()=>{
+    if(!S.matchId)return stopPolling();
+    const data=await api('GET','/matches/'+S.matchId);if(!data)return;
+    const prev=S.match?.currentTurn;S.match=data.game_state;S.matchData=data;
+    if(data.status==='completed'){stopPolling();renderGame();showMatchResult(data);return;}
+    if(S.match?.currentTurn!==prev)renderGame();
+  },2500);
+}
+function stopPolling(){if(S.pollTimer){clearInterval(S.pollTimer);S.pollTimer=null;}}
+
+async function submitPlay(cardId){
+  const data=await api('POST',`/matches/${S.matchId}/action`,{action:'play_card',cardId});
+  if(!data||data.error){showToast(data?.error||'Error playing card','error');return;}
+  S.match=data.state;if(data.state?.log)S.gameLog=data.state.log;
+  if(data.quarterResult?.type==='match_end'){renderGame();setTimeout(()=>showMatchResult({winner_id:data.quarterResult.winner,...data}),300);return;}
+  if(data.quarterResult?.type==='quarter_end')showToast('Q'+(data.quarterResult.nextQuarter-1)+' over! Q'+data.quarterResult.nextQuarter+' starting...');
+  renderGame();
+}
+
+function renderGame(){
+  const match=S.match;if(!match)return;
+  const myId=String(S.user.id),isAI=!!S.matchData?.is_ai_match;
+  const opId=Object.keys(match.players).find(id=>id!==myId)||'AI';
+  const me=match.players[myId]||{},opp=match.players[opId]||{};
+  const isMyTurn=String(match.currentTurn)===myId;
+  const myS=me.quarterScores||[0,0,0,0],opS=opp.quarterScores||[0,0,0,0];
+  const oppHand=typeof opp.hand==='number'?opp.hand:(opp.hand?.length||0);
+
+  document.getElementById('game-view').innerHTML=`
+    <div class="border-b border-gray-800 bg-gray-900/90 sticky top-16 z-10 px-4 py-3">
+      <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
+        <button onclick="leaveGame()" class="text-gray-500 hover:text-white text-sm shrink-0 transition-colors">← Leave</button>
+        <div class="flex gap-1.5 items-center">
+          ${[0,1,2,3].map(q=>{const act=q===match.quarter-1,ms=myS[q],os=opS[q];return`<div class="text-center px-3 py-1 rounded-lg ${act?'bg-orange-950/60 ring-1 ring-orange-600/50':''}"><div class="text-[9px] text-gray-600 mb-0.5">Q${q+1}</div><div class="font-display text-[15px] leading-none"><span class="${ms>os?'text-green-400':ms<os?'text-red-400':'text-white'}">${ms}</span><span class="text-gray-700 mx-0.5">-</span><span class="${os>ms?'text-red-400':'text-gray-400'}">${os}</span></div></div>`;}).join('')}
+        </div>
+        <div class="text-[12px] font-bold shrink-0 ${isMyTurn?'text-orange-400':'text-gray-500'}">${isMyTurn?'🏀 Your Turn':'⏳ Waiting...'}</div>
+      </div>
+    </div>
+    <div class="max-w-5xl mx-auto px-4 py-4 flex gap-4">
+      <div class="flex-1 min-w-0">
+        <div class="bg-gray-900/50 rounded-2xl p-4 mb-3 border border-gray-800">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2"><span class="text-2xl">${isAI?'🤖':'👤'}</span><div><div class="font-bold text-white text-[14px]">${isAI?'CourtBot AI':(S.matchData?.player2||'Opponent')}</div><div class="text-gray-600 text-[11px]">${oppHand} cards · Momentum ${opp.momentum||0}/10</div></div></div>
+            <div class="h-1.5 w-24 bg-gray-800 rounded-full overflow-hidden"><div class="h-full bg-red-600/50 rounded-full transition-all" style="width:${(opp.momentum||0)*10}%"></div></div>
+          </div>
+          <div class="flex gap-2 flex-wrap min-h-[52px] items-center">${(opp.field||[]).map(id=>miniCard(id)).join('')||'<span class="text-gray-700 text-[12px]">No cards on field</span>'}</div>
+        </div>
+        <div class="flex items-center gap-3 mb-3 px-1">
+          <div class="text-[11px] text-gray-600 shrink-0">Momentum</div>
+          <div class="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-orange-700 to-orange-400 rounded-full transition-all duration-500" style="width:${(me.momentum||0)*10}%"></div></div>
+          <div class="text-[11px] text-orange-400 font-bold w-8 text-right">${me.momentum||0}/10</div>
+        </div>
+        <div class="bg-gray-800/20 rounded-2xl p-3 mb-3 border border-gray-800/50 min-h-[60px]">
+          <div class="text-[10px] text-gray-600 uppercase tracking-widest mb-2">Your Field</div>
+          <div class="flex gap-2 flex-wrap items-center">${(me.field||[]).map(id=>miniCard(id,true)).join('')||'<span class="text-gray-700 text-[12px]">Play a player card to the field</span>'}</div>
+        </div>
+        <div>
+          <div class="text-[11px] text-gray-500 uppercase tracking-widest mb-3 px-1">${isMyTurn?'👆 Tap a card to play it':'Your Hand — waiting for your turn'} <span class="text-gray-700">(${(me.hand||[]).length})</span></div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+            ${(me.hand||[]).map(id=>handCard(id,isMyTurn)).join('')}
+            ${!(me.hand||[]).length?'<div class="col-span-4 text-gray-700 text-sm py-4 text-center">Hand empty — deck exhausted</div>':''}
+          </div>
+        </div>
+      </div>
+      <div class="w-44 hidden lg:block shrink-0">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-3 sticky top-32">
+          <div class="text-[10px] text-gray-600 uppercase tracking-widest mb-2">Play Log</div>
+          <div class="space-y-1.5 max-h-[420px] overflow-y-auto scrollbar-hide">
+            ${(S.gameLog||[]).slice(-15).reverse().map(entry=>`<div class="text-[11px] text-gray-500 border-b border-gray-800/50 pb-1.5 leading-snug">${(entry.events||[]).map(ev=>fmtEvent(ev)).join('<br>')}</div>`).join('')||'<div class="text-gray-700 text-[11px]">No plays yet</div>'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function miniCard(cardId,isOwn){
+  const c=S.cardCache[Number(cardId)];if(!c)return`<div class="w-12 h-16 bg-gray-800 rounded-lg animate-pulse"></div>`;
+  const bc={common:'border-gray-600',rare:'border-blue-600',epic:'border-purple-600',legend:'border-yellow-500',champion:'border-orange-400'};
+  return`<div class="w-[52px] bg-gray-800/80 border ${bc[c.rarity]||'border-gray-700'} rounded-lg p-1.5 text-center shrink-0" title="${c.name}"><div class="text-[22px] leading-none">${c.emoji}</div><div class="text-[9px] text-gray-400 truncate mt-0.5">${c.name.split(' ')[0]}</div><div class="text-[9px] text-orange-400 font-bold">⚔${c.attack}</div></div>`;
+}
+
+function handCard(cardId,canPlay){
+  const c=S.cardCache[Number(cardId)];if(!c)return`<div class="h-32 bg-gray-800 rounded-xl animate-pulse"></div>`;
+  const styles={common:'from-gray-800 to-gray-900 border-gray-700',rare:'from-blue-950/80 to-gray-900 border-blue-700/60',epic:'from-purple-950/80 to-gray-900 border-purple-700/60',legend:'from-amber-950/80 to-gray-900 border-yellow-600/70',champion:'from-orange-950/80 to-gray-900 border-orange-500/80'};
+  return`<div class="bg-gradient-to-b ${styles[c.rarity]||styles.common} border rounded-xl p-2.5 transition-all ${canPlay?'cursor-pointer hover:-translate-y-1.5 hover:shadow-lg hover:shadow-orange-900/30 active:scale-95':'opacity-50 cursor-not-allowed'}" ${canPlay?`onclick="submitPlay(${c.id})"`:''}><div class="text-[9px] font-bold text-gray-500 uppercase tracking-wider">${c.position}</div><div class="text-[28px] text-center my-1">${c.emoji}</div><div class="font-display text-[13px] text-white leading-tight mb-0.5">${c.name}</div>${c.ability_text?`<div class="text-[9px] text-gray-500 leading-tight mb-1">${c.ability_text.slice(0,50)}${c.ability_text.length>50?'…':''}</div>`:''}<div class="flex justify-between text-[10px] font-bold border-t border-white/10 pt-1"><span class="text-blue-400">⚡${c.speed}</span><span class="text-orange-400">⚔${c.attack}</span><span class="text-green-400">❤${c.health}</span></div></div>`;
+}
+
+function fmtEvent(e){const icons={score:'🏀',blocked:'🛡️',play_success:'✅',play_failed:'❌',tactic:'🔒',hype_move:'💥'};return`${icons[e.type]||'•'} <span class="text-gray-400">${e.card}</span>${e.points?` <span class="text-orange-400">+${e.points}</span>`:''}`;}
+
+function showMatchResult(data){
+  const myId=String(S.user?.id),winnerId=String(data.winner_id||data.quarterResult?.winner||'');
+  const won=winnerId===myId&&winnerId!=='null'&&winnerId!=='0';
+  const tie=!winnerId||winnerId==='null'||winnerId==='0'||winnerId==='undefined';
+  document.getElementById('modal-overlay').classList.remove('hidden');
+  document.getElementById('modal-result').classList.remove('hidden');
+  document.getElementById('result-content').innerHTML=`<div class="text-center py-4"><div class="text-[72px] mb-3">${tie?'🤝':won?'🏆':'💔'}</div><div class="font-display text-[40px] ${won?'text-orange-400':tie?'text-yellow-400':'text-gray-400'}">${tie?'DRAW!':won?'YOU WIN!':'GAME OVER'}</div><div class="text-gray-400 text-sm mt-1 mb-6">${won?'+25 ELO · +50 🪙':tie?'No ELO change':'-25 ELO · +10 🪙'}</div><div class="flex gap-3 justify-center"><button onclick="leaveGame()" class="bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-2.5 rounded-full transition-all">Dashboard</button><button onclick="hideModals();startAIMatch();" class="bg-gray-700 hover:bg-gray-600 text-white font-bold px-6 py-2.5 rounded-full transition-all">Play Again</button></div></div>`;
+}
+
+function leaveGame(){stopPolling();hideModals();loadDashboard();showView('dashboard');}
+
+async function sendFriendRequest(){
+  const username=document.getElementById('friend-username').value.trim();if(!username)return;
+  const errEl=document.getElementById('friend-error');errEl.classList.add('hidden');
+  const data=await api('POST','/friends/request',{username});
+  if(data?.error){errEl.textContent=data.error;errEl.classList.remove('hidden');return;}
+  showToast('Request sent to '+username+'!');document.getElementById('friend-username').value='';hideModals();await loadDashboard();
+}
+
+async function acceptFriend(id){await api('POST',`/friends/${id}/accept`);await loadDashboard();showToast('Friend added!');}
+async function declineFriend(id){await api('POST',`/friends/${id}/decline`);await loadDashboard();}
+
+function openFriendChallenge(){
+  const accepted=S.friends.filter(f=>f.status==='accepted');
+  if(!accepted.length){showToast('Add friends first!','error');return;}
+  document.getElementById('challenge-friends-list').innerHTML=accepted.map(f=>`<div class="flex items-center justify-between py-2.5 px-3 hover:bg-gray-800 rounded-xl transition-all"><div class="flex items-center gap-2"><span class="text-xl">${f.avatar||'🏀'}</span><div><div class="text-white text-sm font-semibold">${f.username}</div><div class="text-gray-600 text-xs">${f.rank} · ${f.elo} ELO</div></div></div><button onclick="challengeSpecificFriend(${f.id},'${f.username}')" class="text-xs bg-orange-600 hover:bg-orange-500 px-3 py-1.5 rounded-full text-white font-bold transition-all">⚔ Challenge</button></div>`).join('');
+  showModal('modal-challenge-friend');
+}
+
+async function challengeSpecificFriend(friendId,username){
+  const data=await api('POST','/friends/challenge',{friendId});hideModals();
+  if(data?.error){showToast(data.error,'error');return;}
+  showToast('Challenge sent to '+username+'!');
+}
+
+async function acceptChallenge(id){
+  const data=await api('POST',`/friends/challenge/${id}/accept`);
+  if(data?.error){showToast(data.error,'error');return;}
+  S.challenges=S.challenges.filter(c=>c.id!==id);renderChallengesBanner();await resumeMatch(data.matchId);
+}
+async function declineChallenge(id){await api('POST',`/friends/challenge/${id}/decline`);S.challenges=S.challenges.filter(c=>c.id!==id);renderChallengesBanner();}
+
+function showModal(id){document.getElementById(id).classList.remove('hidden');document.getElementById('modal-overlay').classList.remove('hidden');}
+function hideModals(){['modal-auth','modal-add-friend','modal-challenge-friend','modal-result'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('modal-overlay').classList.add('hidden');}
+
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.className=`fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl font-semibold text-sm shadow-xl border ${type==='error'?'bg-red-950 text-red-300 border-red-800':'bg-green-950 text-green-300 border-green-800'}`;
+  t.classList.remove('hidden');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.add('hidden'),3500);
+}
+
+document.getElementById('friend-username').addEventListener('keydown',e=>{if(e.key==='Enter')sendFriendRequest();});
+
+(async()=>{
+  api('GET','/cards').then(cards=>{if(cards)cards.forEach(c=>{S.cardCache[c.id]=c;});});
+  if(S.token&&S.user){updateNav();await loadDashboard();showView('dashboard');}
+  else{showView('landing');updateNav();}
+})();
 </script>
-
 </body>
 </html>

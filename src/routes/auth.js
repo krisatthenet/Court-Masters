@@ -44,14 +44,20 @@ router.post('/register', [
     );
     const userId = result.insertId;
 
-    // Give starter pack — 10 random common cards
-    const [commons] = await conn.query(
-      "SELECT id FROM cards WHERE rarity = 'common' ORDER BY RAND() LIMIT 10"
+    // Give starter pack — 30 cards across rarities (enough for a full deck)
+    const [starterCards] = await conn.query(
+      `(SELECT id FROM cards WHERE rarity='common' AND is_collectible=1 ORDER BY RAND() LIMIT 18)
+       UNION ALL
+       (SELECT id FROM cards WHERE rarity='rare'   AND is_collectible=1 ORDER BY RAND() LIMIT 8)
+       UNION ALL
+       (SELECT id FROM cards WHERE rarity='epic'   AND is_collectible=1 ORDER BY RAND() LIMIT 3)
+       UNION ALL
+       (SELECT id FROM cards WHERE rarity='legend' AND is_collectible=1 ORDER BY RAND() LIMIT 1)`
     );
-    if (commons.length) {
+    if (starterCards.length) {
       await conn.query(
-        'INSERT INTO user_cards (user_id, card_id, quantity) VALUES ' + commons.map(() => '(?,?,1)').join(','),
-        commons.flatMap(c => [userId, c.id])
+        'INSERT INTO user_cards (user_id, card_id, quantity) VALUES ' + starterCards.map(() => '(?,?,1)').join(','),
+        starterCards.flatMap(c => [userId, c.id])
       );
     }
 
