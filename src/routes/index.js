@@ -7,6 +7,7 @@ router.use('/cards',       require('./cards'));
 router.use('/decks',       require('./decks'));
 router.use('/matches',     require('./matches'));
 router.use('/friends',     require('./friends'));
+router.use('/shop',        require('./shop'));
 router.use('/leaderboard', require('./leaderboard'));
 
 module.exports = router;

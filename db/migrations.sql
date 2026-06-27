@@ -32,3 +32,14 @@ CREATE TABLE IF NOT EXISTS challenges (
   FOREIGN KEY (challenged_id) REFERENCES users(id) ON DELETE CASCADE,
   INDEX idx_challenged (challenged_id, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- User pack inventory (Bronze / Silver / Gold packs)
+CREATE TABLE IF NOT EXISTS user_packs (
+  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id    INT UNSIGNED NOT NULL,
+  pack_type  ENUM('bronze','silver','gold') DEFAULT 'bronze',
+  opened     TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_user_unopened (user_id, opened)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

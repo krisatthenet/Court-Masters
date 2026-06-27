@@ -22,6 +22,10 @@ body{font-family:'Inter',sans-serif;}
 .glow-btn{animation:pulse-glow 2.2s ease-in-out infinite;}
 .scrollbar-hide::-webkit-scrollbar{display:none;}
 .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none;}
+@keyframes cardFlip{0%{transform:rotateY(90deg) scale(.85);opacity:0}100%{transform:rotateY(0deg) scale(1);opacity:1}}
+.card-flip{animation:cardFlip .45s cubic-bezier(.34,1.56,.64,1) forwards;}
+@keyframes packShake{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
+.pack-shake{animation:packShake .15s ease infinite;}
 </style>
 </head>
 <body class="bg-[#0d0d0d] text-white overflow-x-hidden">
@@ -67,6 +71,26 @@ body{font-family:'Inter',sans-serif;}
       </div>
     </div>
   </section>
+  <!-- Launch Gift Banner -->
+  <div class="relative overflow-hidden border-y border-yellow-700/40" style="background:linear-gradient(135deg,#1a0a00 0%,#2d1a00 40%,#1a0a00 100%)">
+    <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(ellipse 60% 100% at 50% 50%,rgba(251,185,18,.08) 0%,transparent 70%)"></div>
+    <div class="relative max-w-4xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-5">
+      <div class="flex items-center gap-5">
+        <div class="text-[52px] shrink-0 animate-bounce">🎁</div>
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-widest bg-yellow-500 text-black px-2 py-0.5 rounded-full">Launch Gift</span>
+          </div>
+          <h3 class="font-display text-[28px] md:text-[34px] text-yellow-300 leading-tight">5 FREE PACKS FOR NEW PLAYERS</h3>
+          <p class="text-gray-400 text-sm mt-0.5">Register now and unlock <span class="text-yellow-400 font-bold">5 Bronze Packs</span> — up to <span class="text-orange-400 font-bold">25 cards</span> to start your collection. Open them in the Shop whenever you're ready.</p>
+        </div>
+      </div>
+      <button onclick="openAuth('register')" class="shrink-0 glow-btn bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-black font-black px-8 py-3 rounded-full text-[15px] uppercase tracking-widest transition-all hover:scale-105 whitespace-nowrap">
+        Claim Free Packs →
+      </button>
+    </div>
+  </div>
+
   <div class="bg-orange-950/25 border-y border-orange-950/50 py-6">
     <div class="max-w-4xl mx-auto px-6 grid grid-cols-4 gap-4 text-center">
       <div><div class="font-display text-[36px] text-orange-400">500+</div><div class="text-gray-500 text-xs">Unique Cards</div></div>
@@ -119,6 +143,31 @@ body{font-family:'Inter',sans-serif;}
       </div>
       <div id="dash-friends" class="bg-gray-900 border border-gray-800 rounded-2xl p-5"></div>
     </div>
+    <!-- Shop section -->
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 mb-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-display text-[22px] text-white">🛍 CARD SHOP</h3>
+        <div id="shop-coins" class="text-yellow-400 font-bold text-sm"></div>
+      </div>
+      <!-- Pending packs notification -->
+      <div id="shop-pending" class="hidden mb-4 p-3 bg-yellow-950/40 border border-yellow-700/40 rounded-xl flex items-center justify-between">
+        <span class="text-yellow-300 text-sm font-semibold">🎁 You have <span id="pending-count">0</span> unopened pack(s)!</span>
+        <button onclick="openShopTab('packs')" class="text-[12px] bg-yellow-600 hover:bg-yellow-500 text-black font-bold px-3 py-1.5 rounded-full transition-all">Open Now →</button>
+      </div>
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-4 bg-gray-800 rounded-xl p-1">
+        <button id="shop-tab-buy" onclick="openShopTab('buy')" class="flex-1 py-1.5 rounded-lg text-sm font-bold transition-all bg-orange-600 text-white">Buy Packs</button>
+        <button id="shop-tab-packs" onclick="openShopTab('packs')" class="flex-1 py-1.5 rounded-lg text-sm font-bold transition-all text-gray-400 hover:text-white">My Packs <span id="my-packs-badge" class="hidden ml-1 bg-yellow-500 text-black text-[10px] px-1.5 py-0.5 rounded-full font-black"></span></button>
+      </div>
+      <!-- Buy tab -->
+      <div id="shop-buy" class="grid sm:grid-cols-3 gap-3"></div>
+      <!-- My packs tab -->
+      <div id="shop-packs" class="hidden">
+        <div id="shop-pack-list" class="grid sm:grid-cols-3 gap-3"></div>
+        <div id="shop-no-packs" class="hidden text-center py-8 text-gray-600">No unopened packs. Buy some below!</div>
+      </div>
+    </div>
+
     <div id="dash-leaderboard" class="bg-gray-900 border border-gray-800 rounded-2xl p-5"></div>
   </div>
 </div>
@@ -183,6 +232,29 @@ body{font-family:'Inter',sans-serif;}
   </div>
 </div>
 
+<!-- Pack opening modal -->
+<div id="modal-pack-open" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl pointer-events-auto" onclick="event.stopPropagation()">
+    <div id="pack-open-header" class="text-center mb-5">
+      <div id="pack-open-emoji" class="text-[56px] mb-2"></div>
+      <h3 id="pack-open-title" class="font-display text-[28px] text-white"></h3>
+      <p class="text-gray-500 text-sm">Tap the pack to reveal your cards</p>
+    </div>
+    <!-- Pre-reveal: big pack to tap -->
+    <div id="pack-open-tap" class="text-center py-4">
+      <div id="pack-tap-icon" class="text-[88px] cursor-pointer inline-block transition-transform hover:scale-110 active:scale-95" onclick="revealPackCards()">📦</div>
+      <p class="text-gray-600 text-sm mt-2 animate-pulse">Tap to open</p>
+    </div>
+    <!-- Cards revealed -->
+    <div id="pack-open-cards" class="hidden">
+      <div id="pack-cards-grid" class="grid grid-cols-5 gap-2 mb-4"></div>
+      <div class="text-center">
+        <button onclick="hideModals();loadShop();" class="bg-orange-600 hover:bg-orange-500 text-white font-bold px-8 py-2.5 rounded-full transition-all">Sweet! Keep going</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl font-semibold text-sm shadow-xl border"></div>
 
@@ -239,6 +311,7 @@ async function loadDashboard(){
   if(profile&&!profile.error){S.user=profile;localStorage.setItem('cm_user',JSON.stringify(profile));}
   S.friends=friends||[];S.leaderboard=lb||[];S.challenges=challenges||[];
   renderDashboard(matches||[]);
+  loadShop();
 }
 
 function renderDashboard(matches=[]){renderProfile();renderFriendsPanel();renderLeaderboard();renderChallengesBanner();renderRecentMatches(matches);updateNav();}
@@ -457,7 +530,7 @@ async function acceptChallenge(id){
 async function declineChallenge(id){await api('POST',`/friends/challenge/${id}/decline`);S.challenges=S.challenges.filter(c=>c.id!==id);renderChallengesBanner();}
 
 function showModal(id){document.getElementById(id).classList.remove('hidden');document.getElementById('modal-overlay').classList.remove('hidden');}
-function hideModals(){['modal-auth','modal-add-friend','modal-challenge-friend','modal-result'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('modal-overlay').classList.add('hidden');}
+function hideModals(){['modal-auth','modal-add-friend','modal-challenge-friend','modal-result','modal-pack-open'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('modal-overlay').classList.add('hidden');}
 
 function showToast(msg,type='success'){
   const t=document.getElementById('toast');t.textContent=msg;
@@ -466,6 +539,140 @@ function showToast(msg,type='success'){
 }
 
 document.getElementById('friend-username').addEventListener('keydown',e=>{if(e.key==='Enter')sendFriendRequest();});
+
+// ─── SHOP ─────────────────────────────────────────────────────────────────
+let shopPackTypes = [];
+let myPacks = [];
+let currentPackId = null;
+
+async function loadShop() {
+  const [types, inventory] = await Promise.all([
+    api('GET', '/shop/packs'),
+    api('GET', '/shop/inventory'),
+  ]);
+  shopPackTypes = types || [];
+  myPacks = inventory || [];
+
+  // Update coins display
+  const coinsEl = document.getElementById('shop-coins');
+  if (coinsEl && S.user) coinsEl.textContent = (S.user.coins || 0) + ' 🪙';
+
+  // Pending badge
+  const pending = myPacks.length;
+  const pendingEl = document.getElementById('shop-pending');
+  const badge = document.getElementById('my-packs-badge');
+  const countEl = document.getElementById('pending-count');
+  if (pendingEl) { pendingEl.classList.toggle('hidden', !pending); if (countEl) countEl.textContent = pending; }
+  if (badge) { badge.classList.toggle('hidden', !pending); badge.textContent = pending; }
+
+  renderShopBuy();
+  renderMyPacks();
+  openShopTab('buy');
+}
+
+function openShopTab(tab) {
+  document.getElementById('shop-buy').classList.toggle('hidden', tab !== 'buy');
+  document.getElementById('shop-packs').classList.toggle('hidden', tab !== 'packs');
+  document.getElementById('shop-tab-buy').className = 'flex-1 py-1.5 rounded-lg text-sm font-bold transition-all ' + (tab === 'buy' ? 'bg-orange-600 text-white' : 'text-gray-400 hover:text-white');
+  document.getElementById('shop-tab-packs').className = 'flex-1 py-1.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1 ' + (tab === 'packs' ? 'bg-orange-600 text-white' : 'text-gray-400 hover:text-white');
+}
+
+function renderShopBuy() {
+  const el = document.getElementById('shop-buy');
+  if (!el) return;
+  const gradients = {
+    bronze: 'from-amber-900/60 to-yellow-950/60',
+    silver: 'from-slate-600/40 to-slate-900/60',
+    gold:   'from-yellow-700/50 to-amber-950/60',
+  };
+  const borders = { bronze: 'border-amber-700/50', silver: 'border-slate-500/50', gold: 'border-yellow-500/60' };
+  el.innerHTML = shopPackTypes.map(p => `
+    <div class="bg-gradient-to-b ${gradients[p.type] || 'from-gray-800 to-gray-900'} border ${borders[p.type] || 'border-gray-700'} rounded-2xl p-4 text-center hover:scale-[1.02] transition-all">
+      <div class="text-[44px] mb-2">${p.emoji}</div>
+      <div class="font-display text-[20px] text-white mb-1">${p.name}</div>
+      <div class="text-gray-400 text-[11px] mb-3 leading-snug">${p.description}</div>
+      <div class="font-display text-[22px] text-yellow-400 mb-3">${p.price} 🪙</div>
+      <button onclick="buyPack('${p.type}')" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 rounded-xl text-sm transition-all active:scale-95">Buy Pack</button>
+    </div>`).join('');
+}
+
+function renderMyPacks() {
+  const list = document.getElementById('shop-pack-list');
+  const empty = document.getElementById('shop-no-packs');
+  if (!list || !empty) return;
+  if (!myPacks.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  const gradients = { bronze:'from-amber-900/60 to-yellow-950/60', silver:'from-slate-600/40 to-slate-900/60', gold:'from-yellow-700/50 to-amber-950/60' };
+  const borders = { bronze:'border-amber-700/50', silver:'border-slate-500/50', gold:'border-yellow-500/60' };
+  list.innerHTML = myPacks.map(p => `
+    <div class="bg-gradient-to-b ${gradients[p.pack_type]||'from-gray-800 to-gray-900'} border ${borders[p.pack_type]||'border-gray-700'} rounded-2xl p-4 text-center hover:scale-[1.02] transition-all">
+      <div class="text-[44px] mb-2">${p.emoji||'📦'}</div>
+      <div class="font-display text-[18px] text-white mb-1">${p.name||p.pack_type}</div>
+      <div class="text-gray-400 text-[11px] mb-3">${p.description||''}</div>
+      <button onclick="startOpenPack(${p.id},'${p.pack_type}','${p.emoji||'📦'}','${(p.name||p.pack_type).replace(/'/g,"\'")}')" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black font-black py-2 rounded-xl text-sm transition-all active:scale-95">✨ Open Pack</button>
+    </div>`).join('');
+}
+
+async function buyPack(packType) {
+  const data = await api('POST', '/shop/buy', { packType });
+  if (data?.error) { showToast(data.error, 'error'); return; }
+  // Refresh user coins
+  const me = await api('GET', '/users/me');
+  if (me && !me.error) { S.user = me; localStorage.setItem('cm_user', JSON.stringify(me)); }
+  showToast('Pack purchased! Check My Packs to open it.');
+  await loadShop();
+  openShopTab('packs');
+}
+
+function startOpenPack(packId, packType, emoji, name) {
+  currentPackId = packId;
+  document.getElementById('pack-open-emoji').textContent = emoji;
+  document.getElementById('pack-open-title').textContent = name;
+  document.getElementById('pack-tap-icon').textContent = emoji;
+  document.getElementById('pack-open-tap').classList.remove('hidden');
+  document.getElementById('pack-open-cards').classList.add('hidden');
+  document.getElementById('pack-cards-grid').innerHTML = '';
+  showModal('modal-pack-open');
+}
+
+async function revealPackCards() {
+  if (!currentPackId) return;
+  const tapEl = document.getElementById('pack-tap-icon');
+  tapEl.classList.add('pack-shake');
+  setTimeout(() => tapEl.classList.remove('pack-shake'), 600);
+
+  const data = await api('POST', `/shop/open/${currentPackId}`);
+  if (data?.error) { showToast(data.error, 'error'); hideModals(); return; }
+
+  const cards = data.cards || [];
+  currentPackId = null;
+
+  document.getElementById('pack-open-tap').classList.add('hidden');
+  document.getElementById('pack-open-cards').classList.remove('hidden');
+
+  const grid = document.getElementById('pack-cards-grid');
+  const rarityColors = { common:'border-gray-600 bg-gray-800', rare:'border-blue-600 bg-blue-950/60', epic:'border-purple-600 bg-purple-950/60', legend:'border-yellow-500 bg-amber-950/60', champion:'border-orange-400 bg-orange-950/60' };
+  const rarityGlow = { common:'', rare:'shadow-blue-900/50', epic:'shadow-purple-900/60', legend:'shadow-yellow-900/60', champion:'shadow-orange-900/70' };
+
+  grid.innerHTML = cards.map(c => `
+    <div class="card-flip opacity-0 ${rarityColors[c.rarity]||'border-gray-600 bg-gray-800'} border-2 rounded-xl p-2 text-center shadow-lg ${rarityGlow[c.rarity]||''}">
+      <div class="text-[28px] mb-1">${c.emoji}</div>
+      <div class="font-display text-[11px] text-white leading-tight">${c.name}</div>
+      <div class="text-[9px] mt-0.5 ${c.rarity==='common'?'text-gray-500':c.rarity==='rare'?'text-blue-400':c.rarity==='epic'?'text-purple-400':c.rarity==='legend'?'text-yellow-400':'text-orange-400'} capitalize font-bold">${c.rarity}</div>
+      <div class="flex justify-between text-[9px] font-bold mt-1 border-t border-white/10 pt-1">
+        <span class="text-orange-400">⚔${c.attack}</span><span class="text-green-400">❤${c.health}</span>
+      </div>
+    </div>`).join('');
+
+  // Stagger the flip-in animation
+  grid.querySelectorAll('.card-flip').forEach((el, i) => {
+    el.style.animationDelay = (i * 0.12) + 's';
+  });
+
+  // Refresh user coins & reload shop state in background
+  api('GET', '/users/me').then(me => { if (me && !me.error) { S.user = me; localStorage.setItem('cm_user', JSON.stringify(me)); renderProfile(); } });
+  api('GET', '/shop/inventory').then(inv => { myPacks = inv || []; renderMyPacks(); const b=document.getElementById('my-packs-badge');if(b){b.classList.toggle('hidden',!myPacks.length);b.textContent=myPacks.length;} const p=document.getElementById('shop-pending');if(p)p.classList.toggle('hidden',!myPacks.length); });
+}
 
 (async()=>{
   api('GET','/cards').then(cards=>{if(cards)cards.forEach(c=>{S.cardCache[c.id]=c;});});

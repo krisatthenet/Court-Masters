@@ -44,22 +44,11 @@ router.post('/register', [
     );
     const userId = result.insertId;
 
-    // Give starter pack — 30 cards across rarities (enough for a full deck)
-    const [starterCards] = await conn.query(
-      `(SELECT id FROM cards WHERE rarity='common' AND is_collectible=1 ORDER BY RAND() LIMIT 18)
-       UNION ALL
-       (SELECT id FROM cards WHERE rarity='rare'   AND is_collectible=1 ORDER BY RAND() LIMIT 8)
-       UNION ALL
-       (SELECT id FROM cards WHERE rarity='epic'   AND is_collectible=1 ORDER BY RAND() LIMIT 3)
-       UNION ALL
-       (SELECT id FROM cards WHERE rarity='legend' AND is_collectible=1 ORDER BY RAND() LIMIT 1)`
+    // Give 5 free Bronze packs as launch gift (openable from the Shop)
+    await conn.query(
+      'INSERT INTO user_packs (user_id, pack_type) VALUES ' + Array(5).fill('(?,\'bronze\')').join(','),
+      Array(5).fill(userId)
     );
-    if (starterCards.length) {
-      await conn.query(
-        'INSERT INTO user_cards (user_id, card_id, quantity) VALUES ' + starterCards.map(() => '(?,?,1)').join(','),
-        starterCards.flatMap(c => [userId, c.id])
-      );
-    }
 
     const user = { id: userId, username, elo: 1000 };
     const accessToken = signAccess(user);
