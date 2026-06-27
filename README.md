@@ -1,6 +1,35 @@
+<div align="center">
+
+<img src="public/favicon.svg" width="96" height="96" alt="Court Masters logo"/>
+
 # Court Masters
 
-Card strategy game powered by basketball rules. Built with Node.js, Express, MySQL, and Socket.io.
+**Where Basketball Strategy meets Card Game Mastery**
+
+[![Live](https://img.shields.io/badge/status-live-brightgreen?style=flat-square)](https://court-legends.com)
+[![Node.js](https://img.shields.io/badge/node-20.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
+[![Express](https://img.shields.io/badge/express-4.x-000000?style=flat-square&logo=express)](https://expressjs.com)
+[![MySQL](https://img.shields.io/badge/mysql-8-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://mysql.com)
+[![Socket.io](https://img.shields.io/badge/socket.io-4.x-010101?style=flat-square&logo=socket.io)](https://socket.io)
+[![License](https://img.shields.io/github/license/krisatthenet/Court-Masters?style=flat-square)](LICENSE.txt)
+[![Last Commit](https://img.shields.io/github/last-commit/krisatthenet/Court-Masters?style=flat-square)](https://github.com/krisatthenet/Court-Masters/commits/master)
+[![Stars](https://img.shields.io/github/stars/krisatthenet/Court-Masters?style=flat-square&logo=github)](https://github.com/krisatthenet/Court-Masters/stargazers)
+
+[**▶ Play Now — court-legends.com**](https://court-legends.com) &nbsp;·&nbsp; [Report Bug](https://github.com/krisatthenet/Court-Masters/issues) &nbsp;·&nbsp; [Request Feature](https://github.com/krisatthenet/Court-Masters/issues)
+
+---
+
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-%E2%9D%A4-EA4AAA?style=for-the-badge&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/krisatthenet)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Buy%20me%20a%20coffee-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/krisatthenet)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/krisatthenet)
+
+</div>
+
+---
+
+## What is Court Masters?
+
+A card strategy game that fuses **Hearthstone-style deckbuilding** with **NBA basketball rules**. Build a 30-card roster, play through 4 quarters, and outscore your opponent to win. Battle the AI instantly or challenge friends to a direct 1v1.
 
 ---
 
@@ -13,7 +42,8 @@ Card strategy game powered by basketball rules. Built with Node.js, Express, MyS
 | Real-time | Socket.io |
 | Database | MySQL (mysql2 pool) |
 | Auth | JWT (access + refresh tokens) |
-| Frontend | Plain HTML + Tailwind CSS (CDN) |
+| Frontend | Vanilla JS + Tailwind CSS (CDN) |
+| Process manager | PM2 |
 
 ---
 
@@ -21,183 +51,113 @@ Card strategy game powered by basketball rules. Built with Node.js, Express, MyS
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
-| POST | `/api/auth/register` | — | Register + receive starter card pack |
+| POST | `/api/auth/register` | — | Register → receive 5 free Bronze Packs |
 | POST | `/api/auth/login` | — | Login → access + refresh tokens |
 | POST | `/api/auth/refresh` | — | Rotate access token |
 | POST | `/api/auth/logout` | — | Invalidate refresh token |
 | GET | `/api/users/me` | ✓ | Own profile |
-| GET | `/api/users/me/collection` | ✓ | All cards you own |
+| GET | `/api/users/me/collection` | ✓ | Cards you own |
 | GET | `/api/users/me/stats` | ✓ | Win rate, ELO, match count |
-| GET | `/api/users/:username` | — | Public profile |
 | GET | `/api/cards` | — | Full card catalog (filter: rarity, position, search) |
-| POST | `/api/cards/open-pack` | ✓ | Spend 100 coins → 5 cards |
+| GET | `/api/shop/packs` | — | Available pack types + prices |
+| GET | `/api/shop/inventory` | ✓ | Your unopened packs |
+| POST | `/api/shop/buy` | ✓ | Buy a pack with coins |
+| POST | `/api/shop/open/:id` | ✓ | Open a pack → receive cards |
 | GET | `/api/decks` | ✓ | Your decks |
-| POST | `/api/decks` | ✓ | Create deck (requires exactly 30 card IDs you own) |
+| POST | `/api/decks` | ✓ | Create a 30-card deck |
 | PUT | `/api/decks/:id` | ✓ | Update deck |
 | DELETE | `/api/decks/:id` | ✓ | Delete deck |
-| POST | `/api/decks/:id/activate` | ✓ | Set active deck for matchmaking |
-| POST | `/api/matches/join-queue` | ✓ | Enter matchmaking (ELO ±300) |
-| DELETE | `/api/matches/leave-queue` | ✓ | Leave queue |
-| POST | `/api/matches/:id/action` | ✓ | Submit a play (`play_card`) |
-| GET | `/api/matches` | ✓ | Match history (last 20) |
-| GET | `/api/matches/:id` | ✓ | Match state (opponent hand is hidden) |
+| POST | `/api/matches/vs-ai` | ✓ | Start instant AI match |
+| POST | `/api/matches/join-queue` | ✓ | Enter ranked matchmaking |
+| POST | `/api/matches/:id/action` | ✓ | Play a card |
+| GET | `/api/matches` | ✓ | Match history |
+| GET | `/api/friends` | ✓ | Friends list + pending requests |
+| POST | `/api/friends/request` | ✓ | Send friend request by username |
+| POST | `/api/friends/:id/accept` | ✓ | Accept friend request |
+| POST | `/api/friends/challenge` | ✓ | Challenge a friend to a match |
+| POST | `/api/friends/challenge/:id/accept` | ✓ | Accept a challenge → match starts |
 | GET | `/api/leaderboard` | — | Top players by ELO |
-| GET | `/api/leaderboard/rank/:userId` | — | A player's leaderboard position |
 | GET | `/api/health` | — | Health check |
 
-**Socket.io events** (connect with `{ auth: { token } }`):
+**Socket.io** (connect with `{ auth: { token } }`):
 
 | Emit | Receive | Description |
 |---|---|---|
 | `find_match { deckId }` | `queued` / `match_found` | Real-time matchmaking |
 | `play_card { matchId, cardId }` | `card_played`, `quarter_end`, `match_end` | In-game actions |
 | `rejoin_match { matchId }` | `rejoined` | Reconnect to active match |
-| `cancel_matchmaking` | `matchmaking_cancelled` | Leave queue |
+
+---
+
+## Game Rules
+
+- **4 quarters**, 6 turns per player per quarter (12 total)
+- **Win condition**: win 3 of 4 quarters
+- **Card types**: PG · SG · SF · PF · C (player cards), PLAY, TACTIC, HYPE
+- **Attack resolution**: card ATK ±2 vs opponent field defense ±3
+- **Scoring**: SPD ≥ 4 → 3 pts, otherwise 2 pts; blocked = 0
+- **Momentum**: builds on score (max 10), needed for HYPE cards; 50% carries into next quarter
+- **ELO**: ±25 per match; rank updates automatically (Rookie → Champion)
+
+---
+
+## Card Shop
+
+| Pack | Price | Contents |
+|---|---|---|
+| 📦 Bronze | 75 🪙 | 3 Common + 1 Rare + 1 Bonus (weighted) |
+| 🎁 Silver | 200 🪙 | 2 Common + 2 Rare + 1 Epic+ |
+| ✨ Gold | 450 🪙 | 1 Rare + 2 Epic + 1 Legend + 1 Wildcard |
+
+New players receive **5 free Bronze Packs** on registration.
 
 ---
 
 ## Deploy to Hostinger via GitHub
 
-### Prerequisites
+### Step 1 — Create MySQL database
+hPanel → Databases → MySQL Databases → Create new → note credentials
 
-- A Hostinger plan that includes **Node.js** hosting (Business Web Hosting or above)
-- A **MySQL database** (included in most Hostinger plans)
-- Your code pushed to a **GitHub repository** (public or private)
+### Step 2 — Import schema
+hPanel → Databases → phpMyAdmin → select DB → Import → `db/schema.sql` → Go
+Then import `db/migrations.sql` the same way.
 
----
+### Step 3 — Set up Node.js app
+hPanel → Node.js → set entry point `server.js`, Node 20.x
 
-### Step 1 — Push the repo to GitHub
+### Step 4 — Connect GitHub repo
+hPanel → Node.js → Git tab → paste `https://github.com/krisatthenet/Court-Masters.git`, branch `master` → Pull → Run npm install
 
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/YOUR_USERNAME/court-masters.git
-git push -u origin main
-```
-
----
-
-### Step 2 — Create the MySQL database
-
-1. Log in to **hPanel** → **Databases** → **MySQL Databases**
-2. Click **Create a new database**
-3. Note down:
-   - Database name (e.g. `u123456789_court_masters`)
-   - Username (e.g. `u123456789_cm_user`)
-   - Password (you set this)
-   - Host (usually `127.0.0.1` or `localhost`)
-
----
-
-### Step 3 — Import the database schema
-
-**Option A — phpMyAdmin (easiest)**
-1. hPanel → **Databases** → **phpMyAdmin**
-2. Select your new database in the left sidebar
-3. Click **Import** tab
-4. Upload `db/schema.sql` → click **Go**
-
-**Option B — SSH**
-```bash
-mysql -u YOUR_DB_USER -p YOUR_DB_NAME < db/schema.sql
-```
-
----
-
-### Step 4 — Set up the Node.js application
-
-1. hPanel → **Node.js**
-2. Click **Create Application**
-3. Fill in:
-   - **Node.js version**: `20.x`
-   - **Application mode**: Production
-   - **Application root**: `/` (or the subdirectory you uploaded to, e.g. `/court-masters`)
-   - **Application URL**: your domain or subdomain
-   - **Application startup file**: `server.js`
-4. Click **Create**
-
----
-
-### Step 5 — Connect the GitHub repository
-
-1. Inside your Node.js app panel, find the **Git** section
-2. Click **Manage** (or the Git icon)
-3. Fill in:
-   - **Repository URL**: `https://github.com/YOUR_USERNAME/court-masters.git`
-     (for a **private repo** use SSH: `git@github.com:YOUR_USERNAME/court-masters.git`)
-   - **Branch**: `main`
-4. If using a **private repo**:
-   - Hostinger will show you an **SSH public key**
-   - Go to GitHub → your repo → **Settings** → **Deploy keys** → **Add deploy key**
-   - Paste Hostinger's public key, check **Allow read access**, save
-5. Click **Pull** to deploy the first time
-
-After pulling, Hostinger will prompt you to run `npm install`. Click the button in hPanel, or run via SSH:
-```bash
-npm install --omit=dev
-```
-
----
-
-### Step 6 — Set environment variables
-
-In hPanel → Node.js → your app → **Environment Variables**, add each of these:
+### Step 5 — Environment variables
 
 | Key | Value |
 |---|---|
-| `DB_HOST` | `127.0.0.1` |
-| `DB_PORT` | `3306` |
-| `DB_USER` | your database username |
-| `DB_PASSWORD` | your database password |
-| `DB_NAME` | your database name |
-| `JWT_SECRET` | a random 64-char string (run: `openssl rand -hex 64`) |
+| `DB_HOST` | `localhost` |
+| `DB_SOCKET` | `/var/lib/mysql/mysql.sock` |
+| `DB_USER` | your db username |
+| `DB_PASSWORD` | your db password |
+| `DB_NAME` | your db name |
+| `JWT_SECRET` | `openssl rand -hex 64` |
 | `JWT_EXPIRES_IN` | `15m` |
-| `JWT_REFRESH_SECRET` | another random 64-char string |
+| `JWT_REFRESH_SECRET` | `openssl rand -hex 64` |
 | `JWT_REFRESH_EXPIRES_IN` | `7d` |
 | `CLIENT_URL` | `https://yourdomain.com` |
 
-> **Never commit `.env` to git.** The `.gitignore` already excludes it.
-
----
-
-### Step 7 — Start the application
-
-In hPanel → Node.js → your app → click **Start** (or **Restart** if already running).
-
-Visit your domain — the landing page loads from `public/index.html` and the API is live at `/api/`.
-
----
-
-### Auto-deploy on every push (optional)
-
-1. In hPanel → Node.js → Git section → enable **Auto-deploy** (or copy the webhook URL)
-2. Go to GitHub → your repo → **Settings** → **Webhooks** → **Add webhook**
-   - Payload URL: the URL Hostinger gave you
-   - Content type: `application/json`
-   - Event: **Just the push event**
-3. Save — every `git push origin main` now redeploys automatically
+### Step 6 — Start
+hPanel → Node.js → Start
 
 ---
 
 ## Local Development
 
 ```bash
-# 1. Clone and install
-git clone https://github.com/YOUR_USERNAME/court-masters.git
-cd court-masters
+git clone https://github.com/krisatthenet/Court-Masters.git
+cd Court-Masters
 npm install
-
-# 2. Set up environment
-cp .env.example .env
-# Edit .env with your local MySQL credentials
-
-# 3. Import schema into local MySQL
+cp .env.example .env   # fill in your local DB credentials
 mysql -u root -p court_masters < db/schema.sql
-
-# 4. Start with hot-reload
-npm run dev
-# → http://localhost:3000
+mysql -u root -p court_masters < db/migrations.sql
+npm run dev            # → http://localhost:3000
 ```
 
 ---
@@ -209,29 +169,25 @@ court-masters/
 ├── server.js              # Entry point
 ├── package.json
 ├── ecosystem.config.js    # PM2 config
-├── .nvmrc                 # Node.js version pin (20)
-├── .env.example           # Environment variable template
 ├── public/
-│   └── index.html         # Landing page (served at /)
+│   ├── index.html         # Full-stack SPA (landing + game client)
+│   └── favicon.svg        # LTU flag basketball icon
 ├── src/
-│   ├── config/db.js       # MySQL connection pool
+│   ├── config/db.js       # MySQL connection pool (socket + TCP)
 │   ├── middleware/auth.js  # JWT verification
-│   ├── routes/            # auth · users · cards · decks · matches · leaderboard
+│   ├── routes/            # auth · users · cards · decks · matches · friends · shop · leaderboard
 │   └── game/
-│       ├── engine.js      # Turn resolution, quarter system, scoring
+│       ├── engine.js      # Turn resolution, quarters, scoring
 │       └── socket.js      # Socket.io real-time handlers
 └── db/
-    └── schema.sql         # All tables + 34 seeded cards
+    ├── schema.sql         # All tables + 34 seeded cards
+    └── migrations.sql     # Incremental schema changes
 ```
 
 ---
 
-## Game Rules (Engine)
+<div align="center">
 
-- **4 quarters**, 6 turns per player per quarter (12 total)
-- **Win condition**: win 3 of 4 quarters
-- **Card types**: PG · SG · SF · PF · C (player cards), PLAY, TACTIC, HYPE
-- **Attack resolution**: card ATK ±2 vs opponent field defense value ±3
-- **Scoring**: SPD ≥ 4 → 3 pts, otherwise 2 pts; blocked = 0
-- **Momentum**: builds on every score (max 10), required for HYPE cards; carries over at 50% between quarters
-- **ELO**: ±25 per match; rank updates automatically (Rookie → Champion)
+Built with ☕ and 🏀 &nbsp;·&nbsp; [court-legends.com](https://court-legends.com)
+
+</div>
